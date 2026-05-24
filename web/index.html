@@ -10,7 +10,9 @@
     <main class="app-shell">
       <aside class="sidebar" aria-label="Toolkit navigation">
         <div class="brand-block">
-          <div class="brand-mark" aria-hidden="true">RC</div>
+          <div class="brand-logo">
+            <img src="assets/g-bunge-logo.jpg" alt="G-BungE logo">
+          </div>
           <div>
             <h1>Engineering Toolkit</h1>
             <p>FSK / BSK setup calculator</p>
@@ -110,12 +112,12 @@
               <div class="input-grid">
                 <label>
                   <span>Front piston area</span>
-                  <input name="frontArea" type="number" min="0" step="1" value="1800">
+                  <input name="frontArea" type="number" min="0" step="1" value="0">
                   <em>mm² per caliper</em>
                 </label>
                 <label>
                   <span>Rear piston area</span>
-                  <input name="rearArea" type="number" min="0" step="1" value="1200">
+                  <input name="rearArea" type="number" min="0" step="1" value="0">
                   <em>mm² per caliper</em>
                 </label>
                 <label>
@@ -138,42 +140,42 @@
                 </label>
                 <label>
                   <span>Front discs</span>
-                  <input name="frontDiscs" type="number" min="1" step="1" value="2">
+                  <input name="frontDiscs" type="number" min="0" step="1" value="0">
                   <em>count</em>
                 </label>
                 <label>
                   <span>Rear discs</span>
-                  <input name="rearDiscs" type="number" min="1" step="1" value="1">
+                  <input name="rearDiscs" type="number" min="0" step="1" value="0">
                   <em>count</em>
                 </label>
                 <label>
                   <span>Front effective radius</span>
-                  <input name="frontRadius" type="number" min="0" step="1" value="95">
+                  <input name="frontRadius" type="number" min="0" step="1" value="0">
                   <em>mm</em>
                 </label>
                 <label>
                   <span>Rear effective radius</span>
-                  <input name="rearRadius" type="number" min="0" step="1" value="85">
+                  <input name="rearRadius" type="number" min="0" step="1" value="0">
                   <em>mm</em>
                 </label>
                 <label>
                   <span>Front pad μ</span>
-                  <input name="frontMu" type="number" min="0" step="0.01" value="0.45">
+                  <input name="frontMu" type="number" min="0" step="0.01" value="0">
                   <em>-</em>
                 </label>
                 <label>
                   <span>Rear pad μ</span>
-                  <input name="rearMu" type="number" min="0" step="0.01" value="0.45">
+                  <input name="rearMu" type="number" min="0" step="0.01" value="0">
                   <em>-</em>
                 </label>
                 <label>
                   <span>Front pressure</span>
-                  <input name="frontPressure" type="number" min="0" step="0.1" value="1">
+                  <input name="frontPressure" type="number" min="0" step="0.1" value="0">
                   <em>bar</em>
                 </label>
                 <label>
                   <span>Rear pressure</span>
-                  <input name="rearPressure" type="number" min="0" step="0.1" value="1">
+                  <input name="rearPressure" type="number" min="0" step="0.1" value="0">
                   <em>bar</em>
                 </label>
               </div>
@@ -223,17 +225,17 @@
               <div class="input-grid">
                 <label>
                   <span>Target wheel rate</span>
-                  <input name="wheelRate" type="number" min="0" step="0.1" value="35">
+                  <input name="wheelRate" type="number" min="0" step="0.1" value="0">
                   <em>N/mm</em>
                 </label>
                 <label>
                   <span>Motion ratio</span>
-                  <input name="motionRatio" type="number" min="0" step="0.01" value="0.78">
+                  <input name="motionRatio" type="number" min="0" step="0.01" value="0">
                   <em>spring/wheel</em>
                 </label>
                 <label>
                   <span>Tire rate</span>
-                  <input name="tireRate" type="number" min="0" step="1" value="220">
+                  <input name="tireRate" type="number" min="0" step="1" value="0">
                   <em>N/mm</em>
                 </label>
               </div>
@@ -268,12 +270,12 @@
               <div class="input-grid">
                 <label>
                   <span>Wheel travel</span>
-                  <input name="wheelTravel" type="number" min="0" step="0.1" value="30">
+                  <input name="wheelTravel" type="number" min="0" step="0.1" value="0">
                   <em>mm</em>
                 </label>
                 <label>
                   <span>Spring travel</span>
-                  <input name="springTravel" type="number" min="0" step="0.1" value="23.4">
+                  <input name="springTravel" type="number" min="0" step="0.1" value="0">
                   <em>mm</em>
                 </label>
               </div>
@@ -314,11 +316,11 @@
                   </select>
                   <em>standard</em>
                 </label>
-                <label><span>Target center distance</span><input name="centerDistance" type="number" min="0" step="1" value="360"><em>mm</em></label>
-                <label><span>Motor sprocket</span><input name="motorTeeth" type="number" min="8" step="1" value="14"><em>teeth</em></label>
-                <label><span>Wheel sprocket</span><input name="wheelTeeth" type="number" min="8" step="1" value="52"><em>teeth</em></label>
-                <label><span>Axle adjust range</span><input name="adjustRange" type="number" min="0" step="1" value="18"><em>± mm</em></label>
-                <label><span>Minimum wrap target</span><input name="minWrap" type="number" min="60" max="180" step="1" value="120"><em>deg</em></label>
+                <label><span>Target center distance</span><input name="centerDistance" type="number" min="0" step="1" value="0"><em>mm</em></label>
+                <label><span>Motor sprocket</span><input name="motorTeeth" type="number" min="0" step="1" value="0"><em>teeth</em></label>
+                <label><span>Wheel sprocket</span><input name="wheelTeeth" type="number" min="0" step="1" value="0"><em>teeth</em></label>
+                <label><span>Axle adjust range</span><input name="adjustRange" type="number" min="0" step="1" value="0"><em>± mm</em></label>
+                <label><span>Minimum wrap target</span><input name="minWrap" type="number" min="0" max="180" step="1" value="0"><em>deg</em></label>
               </div>
             </form>
 
