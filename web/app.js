@@ -18,7 +18,19 @@ const chainSizes = {
   520: { pitchMm: 15.875, rollerWidthMm: 6.35 },
 };
 
+const monolithLog = {
+  magic: 0xae,
+  size: 24,
+  types: ["INVALID", "BOOT", "CAN", "GPS", "ANALOG", "DIGITAL", "GYROSCOPE", "SYSTEM", "USER_EVENT"],
+};
+
 const defaults = new Map();
+const analysisState = {
+  rows: [],
+  columns: [],
+  numericColumns: [],
+  fileName: "",
+};
 
 function numberValue(form, name) {
   const value = Number(form.elements[name].value);
@@ -32,6 +44,22 @@ function integerValue(form, name) {
 function format(value, digits = 1, suffix = "") {
   if (!Number.isFinite(value)) return "-";
   return `${value.toFixed(digits)}${suffix}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function compactNumber(value) {
+  if (!Number.isFinite(value)) return "-";
+  if (Math.abs(value) >= 1000 || (Math.abs(value) > 0 && Math.abs(value) < 0.01)) {
+    return value.toExponential(2);
+  }
+  return Number(value.toFixed(3)).toString();
 }
 
 function saveDefaults() {
@@ -82,28 +110,55 @@ function activateCalc(calc) {
 
 function updateBrake() {
   const form = document.querySelector('[data-form="brake"]');
+  const pedalForce = numberValue(form, "pedalForce");
+  const pedalRatio = numberValue(form, "pedalRatio");
+  const frontMasterBore = numberValue(form, "frontMasterBore");
+  const rearMasterBore = numberValue(form, "rearMasterBore");
+  const frontBalance = Math.min(Math.max(numberValue(form, "frontBalance"), 0), 100) / 100;
+  const frontMasterArea = frontMasterBore > 0 ? Math.PI * (frontMasterBore / 2) ** 2 : 0;
+  const rearMasterArea = rearMasterBore > 0 ? Math.PI * (rearMasterBore / 2) ** 2 : 0;
+  const pedalOutputForce = pedalForce * pedalRatio;
+  const frontCalculatedPressure =
+    pedalOutputForce > 0 && frontMasterArea > 0 ? ((pedalOutputForce * frontBalance) / frontMasterArea) * 10 : NaN;
+  const rearCalculatedPressure =
+    pedalOutputForce > 0 && rearMasterArea > 0 ? ((pedalOutputForce * (1 - frontBalance)) / rearMasterArea) * 10 : NaN;
+  const frontPressure = Number.isFinite(frontCalculatedPressure) ? frontCalculatedPressure : numberValue(form, "frontPressure");
+  const rearPressure = Number.isFinite(rearCalculatedPressure) ? rearCalculatedPressure : numberValue(form, "rearPressure");
+
   const front =
     numberValue(form, "frontArea") *
     numberValue(form, "frontCaliperMultiplier") *
     integerValue(form, "frontDiscs") *
     numberValue(form, "frontRadius") *
     numberValue(form, "frontMu") *
-    numberValue(form, "frontPressure");
+    frontPressure;
   const rear =
     numberValue(form, "rearArea") *
     numberValue(form, "rearCaliperMultiplier") *
     integerValue(form, "rearDiscs") *
     numberValue(form, "rearRadius") *
     numberValue(form, "rearMu") *
-    numberValue(form, "rearPressure");
+    rearPressure;
   const total = front + rear;
   const frontPercent = total > 0 ? (front / total) * 100 : 0;
   const rearPercent = total > 0 ? (rear / total) * 100 : 0;
+  const frontTorque = front * 0.0001;
+  const rearTorque = rear * 0.0001;
+  const tireRadiusM = numberValue(form, "tireRadius") / 1000;
+  const vehicleMass = numberValue(form, "vehicleMass");
+  const totalBrakeForce = tireRadiusM > 0 ? (frontTorque + rearTorque) / tireRadiusM : NaN;
+  const decelG = vehicleMass > 0 ? totalBrakeForce / (vehicleMass * 9.80665) : NaN;
 
   document.querySelector("#brake-front").textContent = format(frontPercent, 1, "%");
   document.querySelector("#brake-rear").textContent = format(rearPercent, 1, "%");
   document.querySelector("#brake-front-factor").textContent = format(front, 0);
   document.querySelector("#brake-rear-factor").textContent = format(rear, 0);
+  document.querySelector("#brake-front-pressure").textContent = format(frontPressure, 1, " bar");
+  document.querySelector("#brake-rear-pressure").textContent = format(rearPressure, 1, " bar");
+  document.querySelector("#brake-front-torque").textContent = format(frontTorque, 1, " Nm");
+  document.querySelector("#brake-rear-torque").textContent = format(rearTorque, 1, " Nm");
+  document.querySelector("#brake-total-force").textContent = format(totalBrakeForce, 0, " N");
+  document.querySelector("#brake-decel").textContent = format(decelG, 2, " g");
   document.querySelector("#brake-front-bar").style.width = `${frontPercent}%`;
   document.querySelector("#brake-rear-bar").style.width = `${rearPercent}%`;
 }
@@ -334,6 +389,652 @@ function updateChain() {
   drawChainDiagram(result);
 }
 
+function bytesToUint(bytes, start, byteCount) {
+  let value = 0;
+  for (let offset = 0; offset < byteCount; offset += 1) {
+    value += bytes[start + offset] * 2 ** (offset * 8);
+  }
+  return value >>> 0;
+}
+
+function bytesToInt(bytes, start, byteCount) {
+  const bitCount = byteCount * 8;
+  const value = bytesToUint(bytes, start, byteCount);
+  const signLimit = 2 ** (bitCount - 1);
+  return value >= signLimit ? value - 2 ** bitCount : value;
+}
+
+function bytesToText(bytes, start, end) {
+  const chars = Array.from(bytes.slice(start, end), (byte) => String.fromCharCode(byte)).join("");
+  const nullIndex = chars.indexOf("\0");
+  return nullIndex === -1 ? chars : chars.slice(0, nullIndex);
+}
+
+function monolithChecksumOk(record) {
+  const expected = bytesToUint(record, 2, 2);
+  let checksum = 0;
+
+  for (let offset = 0; offset < monolithLog.size; offset += 4) {
+    const chunk =
+      (offset === 0 ? record[0] : record[offset]) +
+      ((offset === 0 ? record[1] : record[offset + 1]) << 8) +
+      ((offset === 0 ? 0 : record[offset + 2]) << 16) +
+      ((offset === 0 ? 0 : record[offset + 3]) << 24);
+    checksum ^= chunk >>> 0;
+  }
+
+  checksum = ((checksum & 0xffff) + (checksum >>> 16)) & 0xffff;
+  return checksum === expected;
+}
+
+function parseMonolithRecord(record) {
+  if (record.length < monolithLog.size || record[0] !== monolithLog.magic) return null;
+  if (!monolithChecksumOk(record)) return null;
+
+  const type = monolithLog.types[record[1]] || "INVALID";
+  const base = {
+    timestamp: bytesToUint(record, 4, 4),
+    time_s: bytesToUint(record, 4, 4) / 1000,
+    type,
+  };
+
+  if (type === "BOOT") {
+    return {
+      ...base,
+      protocol_version: bytesToUint(record, 8, 1),
+      mac: Array.from(record.slice(10, 16), (byte) => byte.toString(16).padStart(2, "0")).join(":").toUpperCase(),
+    };
+  }
+
+  if (type === "CAN") {
+    const len = bytesToUint(record, 14, 1);
+    return {
+      ...base,
+      can_id: bytesToUint(record, 8, 4),
+      can_extended: bytesToUint(record, 12, 1),
+      can_remote: bytesToUint(record, 13, 1),
+      can_len: len,
+      can_data: Array.from(record.slice(16, 16 + len), (byte) => byte.toString(16).padStart(2, "0")).join(""),
+    };
+  }
+
+  if (type === "GPS") {
+    const latitudeRaw = bytesToUint(record, 8, 4) / 10000000;
+    const longitudeRaw = bytesToUint(record, 12, 4) / 10000000;
+    const latitude = Math.floor(latitudeRaw) + ((latitudeRaw % 1) * 100) / 60;
+    const longitude = Math.floor(longitudeRaw) + ((longitudeRaw % 1) * 100) / 60;
+    return {
+      ...base,
+      latitude: bytesToText(record, 16, 17) === "S" ? -latitude : latitude,
+      longitude: bytesToText(record, 17, 18) === "W" ? -longitude : longitude,
+      gps_speed: bytesToUint(record, 20, 2) / 100,
+      gps_course: bytesToUint(record, 22, 2) / 100,
+    };
+  }
+
+  if (type === "ANALOG") {
+    return {
+      ...base,
+      ain1: bytesToInt(record, 8, 2),
+      ain2: bytesToInt(record, 10, 2),
+      ain3: bytesToInt(record, 12, 2),
+      ain4: bytesToInt(record, 14, 2),
+      ain5: bytesToInt(record, 16, 2),
+      ain6: bytesToInt(record, 18, 2),
+      voltage_raw: bytesToInt(record, 20, 2),
+      temperature_raw: bytesToInt(record, 22, 2),
+    };
+  }
+
+  if (type === "DIGITAL") {
+    return {
+      ...base,
+      din1: bytesToUint(record, 8, 4),
+      din2: bytesToUint(record, 12, 4),
+      din3: bytesToUint(record, 16, 4),
+      din4: bytesToUint(record, 20, 4),
+    };
+  }
+
+  if (type === "GYROSCOPE") {
+    return {
+      ...base,
+      accel_x: bytesToInt(record, 8, 2),
+      accel_y: bytesToInt(record, 10, 2),
+      accel_z: bytesToInt(record, 12, 2),
+      gyro_temperature_raw: bytesToInt(record, 14, 2),
+      gyro_x: bytesToInt(record, 16, 2),
+      gyro_y: bytesToInt(record, 18, 2),
+      gyro_z: bytesToInt(record, 20, 2),
+    };
+  }
+
+  if (type === "SYSTEM" || type === "USER_EVENT") {
+    return {
+      ...base,
+      message: bytesToText(record, 8, 24),
+    };
+  }
+
+  return null;
+}
+
+function parseMonolithBinary(bytes) {
+  if (!(bytes instanceof Uint8Array) || bytes.length < monolithLog.size || bytes[0] !== monolithLog.magic) return null;
+
+  const rows = [];
+  let validRecords = 0;
+
+  for (let offset = 0; offset + monolithLog.size <= bytes.length; offset += monolithLog.size) {
+    const record = parseMonolithRecord(bytes.slice(offset, offset + monolithLog.size));
+    if (!record) return null;
+    validRecords += 1;
+    if (record.type !== "BOOT") rows.push(record);
+  }
+
+  return validRecords > 0 && rows.length > 0 ? rows : null;
+}
+
+function payloadHex(bytes, offset) {
+  return Array.from(bytes.slice(offset, offset + 8), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function gBungeUint(view, offset, byteCount) {
+  if (byteCount === 1) return view.getUint8(offset);
+  if (byteCount === 2) return view.getUint16(offset, true);
+  return view.getUint32(offset, true);
+}
+
+function gBungeInt(view, offset, byteCount) {
+  if (byteCount === 1) return view.getInt8(offset);
+  if (byteCount === 2) return view.getInt16(offset, true);
+  return view.getInt32(offset, true);
+}
+
+function parseGbungERecord(bytes, offset) {
+  const view = new DataView(bytes.buffer, bytes.byteOffset + offset, 16);
+  const timestampMs = view.getUint32(0, true);
+  const level = view.getUint8(4);
+  const source = view.getUint8(5);
+  const key = view.getUint8(6);
+  const checksum = view.getUint8(7);
+  const base = {
+    timestamp_ms: timestampMs,
+    time_s: timestampMs / 1000,
+    level,
+    source,
+    key,
+    checksum,
+  };
+
+  if (source === 0) return { ...base, type: "SYS", payload: payloadHex(bytes, offset + 8) };
+
+  if (source === 1) {
+    if (key === 10) {
+      return {
+        ...base,
+        type: "CAN_0A",
+        torque_actual_nm: gBungeInt(view, 8, 2) / 16,
+        current_actual: gBungeInt(view, 10, 2),
+        velocity: gBungeInt(view, 12, 4),
+      };
+    }
+    if (key === 11) {
+      return {
+        ...base,
+        type: "CAN_0B",
+        ud: gBungeInt(view, 8, 2) / 16,
+        uq: gBungeInt(view, 10, 2) / 16,
+        vmod: (100 / 256) * gBungeUint(view, 12, 2),
+        vcap: gBungeUint(view, 14, 2) / 16,
+      };
+    }
+    if (key === 12) {
+      return {
+        ...base,
+        type: "CAN_0C",
+        inductance_raw: gBungeUint(view, 8, 2),
+        voltage_limit: gBungeInt(view, 10, 2),
+        iflux: gBungeInt(view, 12, 2),
+        iqmax: gBungeInt(view, 14, 2),
+      };
+    }
+    if (key === 13) {
+      return {
+        ...base,
+        type: "CAN_0D",
+        motor_temp_c: gBungeInt(view, 8, 2),
+        battery_current_a: gBungeInt(view, 10, 2) / 16,
+        torque_demand_nm: gBungeInt(view, 12, 2) / 16,
+        torque_actual_nm: gBungeInt(view, 14, 2) / 16,
+      };
+    }
+    if (key === 14) {
+      return {
+        ...base,
+        type: "CAN_0E",
+        voltage_target: gBungeInt(view, 8, 4),
+        id_a: gBungeInt(view, 12, 2) / 16,
+        iq_a: gBungeInt(view, 14, 2) / 16,
+      };
+    }
+    return { ...base, type: "CAN", payload: payloadHex(bytes, offset + 8) };
+  }
+
+  if (source === 2) return { ...base, type: "DIGITAL", payload: payloadHex(bytes, offset + 8) };
+  if (source === 3) return { ...base, type: "ANALOG", payload: payloadHex(bytes, offset + 8) };
+  if (source === 4) return { ...base, type: "PULSE", payload: payloadHex(bytes, offset + 8) };
+
+  if (source === 5) {
+    return {
+      ...base,
+      type: "ACCELEROMETER",
+      accel_x_g: gBungeInt(view, 8, 2) * (4 / 512),
+      accel_y_g: gBungeInt(view, 10, 2) * (4 / 512),
+      accel_z_g: gBungeInt(view, 12, 2) * (4 / 512),
+    };
+  }
+
+  if (source === 6) {
+    if (key === 0) {
+      return {
+        ...base,
+        type: "GPS_POS",
+        latitude: gBungeInt(view, 8, 4) / 10000000,
+        longitude: gBungeInt(view, 12, 4) / 10000000,
+      };
+    }
+    if (key === 1) {
+      return {
+        ...base,
+        type: "GPS_VEC",
+        speed_kph: gBungeInt(view, 8, 4),
+        course_deg: gBungeInt(view, 12, 4),
+      };
+    }
+    return { ...base, type: "GPS", payload: payloadHex(bytes, offset + 8) };
+  }
+
+  return null;
+}
+
+function parseGbungEBinary(bytes) {
+  if (!(bytes instanceof Uint8Array) || bytes.length < 16 || bytes.length % 16 !== 0) return null;
+
+  const rows = [];
+  let plausible = 0;
+
+  for (let offset = 0; offset + 16 <= bytes.length; offset += 16) {
+    const source = bytes[offset + 5];
+    const key = bytes[offset + 6];
+    const timestamp = bytesToUint(bytes, offset, 4);
+
+    if (source <= 6 && timestamp < 24 * 60 * 60 * 1000) {
+      const row = parseGbungERecord(bytes, offset);
+      if (row) {
+        plausible += 1;
+        rows.push(row);
+      }
+    }
+  }
+
+  return plausible / (bytes.length / 16) > 0.85 && rows.length > 0 ? rows : null;
+}
+
+function parseCsvLine(line) {
+  const cells = [];
+  let cell = "";
+  let quoted = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const next = line[index + 1];
+
+    if (char === '"' && quoted && next === '"') {
+      cell += '"';
+      index += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (char === "," && !quoted) {
+      cells.push(cell.trim());
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+
+  cells.push(cell.trim());
+  return cells;
+}
+
+function parseCsv(text) {
+  const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0);
+  if (lines.length < 2 || !lines[0].includes(",")) return null;
+
+  const headers = parseCsvLine(lines[0]).map((header, index) => header || `col_${index + 1}`);
+  const rows = lines.slice(1).map((line) => {
+    const values = parseCsvLine(line);
+    return Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""]));
+  });
+
+  return rows.length > 0 ? rows : null;
+}
+
+function flattenRecord(record, prefix = "") {
+  const output = {};
+
+  Object.entries(record || {}).forEach(([key, value]) => {
+    const nextKey = prefix ? `${prefix}.${key}` : key;
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      Object.assign(output, flattenRecord(value, nextKey));
+    } else if (Array.isArray(value)) {
+      value.forEach((item, index) => {
+        if (item && typeof item === "object") {
+          Object.assign(output, flattenRecord(item, `${nextKey}.${index}`));
+        } else {
+          output[`${nextKey}.${index}`] = item;
+        }
+      });
+    } else {
+      output[nextKey] = value;
+    }
+  });
+
+  return output;
+}
+
+function parseJson(text) {
+  try {
+    const parsed = JSON.parse(text);
+    const rows = Array.isArray(parsed) ? parsed : parsed?.data || parsed?.rows || parsed?.records || parsed?.logs;
+    if (!Array.isArray(rows)) return null;
+    return rows.map((row) => (row && typeof row === "object" ? flattenRecord(row) : { value: row }));
+  } catch {
+    return null;
+  }
+}
+
+function parseJsonLines(text) {
+  const rows = [];
+  const lines = text.split(/\r?\n/).filter((line) => line.trim().startsWith("{"));
+
+  for (const line of lines) {
+    try {
+      rows.push(flattenRecord(JSON.parse(line)));
+    } catch {
+      return null;
+    }
+  }
+
+  return rows.length > 0 ? rows : null;
+}
+
+function parseNumericText(text) {
+  const rows = [];
+  const splitPattern = /[\s,;]+/;
+
+  text.split(/\r?\n/).forEach((line) => {
+    const values = line
+      .trim()
+      .split(splitPattern)
+      .map(Number)
+      .filter(Number.isFinite);
+    if (values.length > 0) {
+      rows.push(Object.fromEntries(values.map((value, index) => [`value_${index + 1}`, value])));
+    }
+  });
+
+  return rows.length > 0 ? rows : null;
+}
+
+function parseUploadedData(text) {
+  return parseJson(text) || parseJsonLines(text) || parseCsv(text) || parseNumericText(text) || [];
+}
+
+function normalizeRows(rows) {
+  return rows.map((row, index) => ({ sample: index, ...row }));
+}
+
+function getColumns(rows) {
+  const columns = new Set();
+  rows.forEach((row) => {
+    Object.keys(row).forEach((key) => columns.add(key));
+  });
+  return Array.from(columns);
+}
+
+function numericValue(value) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : NaN;
+  if (typeof value !== "string") return NaN;
+  const normalized = value.trim().replace(/[^\d.+\-eE]/g, "");
+  if (!normalized) return NaN;
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : NaN;
+}
+
+function getNumericColumns(rows, columns) {
+  return columns.filter((column) => rows.some((row) => Number.isFinite(numericValue(row[column]))));
+}
+
+function preferredColumn(columns, patterns, fallback) {
+  return columns.find((column) => patterns.some((pattern) => pattern.test(column))) || fallback;
+}
+
+function fillSelect(select, options, selected) {
+  select.innerHTML = options.map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join("");
+  select.value = options.includes(selected) ? selected : options[0] || "";
+  select.disabled = options.length === 0;
+}
+
+function setAnalysisStatus(text, level = "") {
+  const status = document.querySelector("#analysis-status");
+  status.className = "chain-status";
+  if (level) status.classList.add(level);
+  status.textContent = text;
+}
+
+function summarizeDuration(rows, xColumn) {
+  if (!xColumn) return "-";
+  const values = rows.map((row) => numericValue(row[xColumn])).filter(Number.isFinite);
+  if (values.length < 2) return "-";
+  const duration = Math.max(...values) - Math.min(...values);
+  return format(duration, 2, xColumn.toLowerCase().includes("time") ? " s" : "");
+}
+
+function updateAnalysisMetrics() {
+  document.querySelector("#analysis-samples").textContent = analysisState.rows.length || "-";
+  document.querySelector("#analysis-signals").textContent = analysisState.numericColumns.length || "-";
+  document.querySelector("#analysis-duration").textContent = summarizeDuration(
+    analysisState.rows,
+    document.querySelector("#analysis-x-axis").value,
+  );
+}
+
+function drawEmptyAnalysisChart(message = "Load a log file") {
+  const canvas = document.querySelector("#analysis-chart");
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#627080";
+  context.font = "700 18px system-ui, sans-serif";
+  context.textAlign = "center";
+  context.fillText(message, canvas.width / 2, canvas.height / 2);
+}
+
+function drawAnalysisChart() {
+  const xColumn = document.querySelector("#analysis-x-axis").value;
+  const yColumn = document.querySelector("#analysis-y-axis").value;
+  const canvas = document.querySelector("#analysis-chart");
+  const context = canvas.getContext("2d");
+  const points = analysisState.rows
+    .map((row, index) => ({
+      x: xColumn === "sample" ? index : numericValue(row[xColumn]),
+      y: numericValue(row[yColumn]),
+    }))
+    .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (points.length < 2) {
+    drawEmptyAnalysisChart("Not enough numeric data");
+    return;
+  }
+
+  const padding = { top: 28, right: 28, bottom: 52, left: 72 };
+  const plotWidth = canvas.width - padding.left - padding.right;
+  const plotHeight = canvas.height - padding.top - padding.bottom;
+  const minX = Math.min(...points.map((point) => point.x));
+  const maxX = Math.max(...points.map((point) => point.x));
+  const minY = Math.min(...points.map((point) => point.y));
+  const maxY = Math.max(...points.map((point) => point.y));
+  const spanX = maxX - minX || 1;
+  const spanY = maxY - minY || 1;
+  const toX = (value) => padding.left + ((value - minX) / spanX) * plotWidth;
+  const toY = (value) => padding.top + plotHeight - ((value - minY) / spanY) * plotHeight;
+
+  context.strokeStyle = "#d7dde3";
+  context.lineWidth = 1;
+  context.beginPath();
+  for (let tick = 0; tick <= 4; tick += 1) {
+    const x = padding.left + (plotWidth * tick) / 4;
+    const y = padding.top + (plotHeight * tick) / 4;
+    context.moveTo(x, padding.top);
+    context.lineTo(x, padding.top + plotHeight);
+    context.moveTo(padding.left, y);
+    context.lineTo(padding.left + plotWidth, y);
+  }
+  context.stroke();
+
+  context.strokeStyle = "#17202a";
+  context.lineWidth = 1.5;
+  context.beginPath();
+  context.moveTo(padding.left, padding.top);
+  context.lineTo(padding.left, padding.top + plotHeight);
+  context.lineTo(padding.left + plotWidth, padding.top + plotHeight);
+  context.stroke();
+
+  context.strokeStyle = "#1f8a83";
+  context.lineWidth = 3;
+  context.beginPath();
+  points.forEach((point, index) => {
+    const x = toX(point.x);
+    const y = toY(point.y);
+    if (index === 0) context.moveTo(x, y);
+    else context.lineTo(x, y);
+  });
+  context.stroke();
+
+  context.fillStyle = "#17202a";
+  context.font = "13px system-ui, sans-serif";
+  context.textAlign = "center";
+  context.fillText(xColumn, padding.left + plotWidth / 2, canvas.height - 16);
+  context.save();
+  context.translate(18, padding.top + plotHeight / 2);
+  context.rotate(-Math.PI / 2);
+  context.fillText(yColumn, 0, 0);
+  context.restore();
+
+  context.textAlign = "right";
+  context.fillStyle = "#627080";
+  context.fillText(compactNumber(maxY), padding.left - 10, padding.top + 5);
+  context.fillText(compactNumber(minY), padding.left - 10, padding.top + plotHeight + 4);
+  context.textAlign = "center";
+  context.fillText(compactNumber(minX), padding.left, padding.top + plotHeight + 24);
+  context.fillText(compactNumber(maxX), padding.left + plotWidth, padding.top + plotHeight + 24);
+
+  document.querySelector("#analysis-chart-label").textContent = `${yColumn} vs ${xColumn}`;
+}
+
+function renderAnalysisTable() {
+  const table = document.querySelector("#analysis-table");
+  const columns = analysisState.columns.slice(0, 12);
+  const rows = analysisState.rows.slice(0, 120);
+
+  table.querySelector("thead").innerHTML = columns.length
+    ? `<tr>${columns.map((column) => `<th>${escapeHtml(column)}</th>`).join("")}</tr>`
+    : "";
+  table.querySelector("tbody").innerHTML = rows
+    .map((row) => `<tr>${columns.map((column) => `<td>${escapeHtml(row[column] ?? "")}</td>`).join("")}</tr>`)
+    .join("");
+
+  document.querySelector("#analysis-table-label").textContent = `${rows.length} / ${analysisState.rows.length} samples`;
+}
+
+function renderAnalysis() {
+  const xSelect = document.querySelector("#analysis-x-axis");
+  const ySelect = document.querySelector("#analysis-y-axis");
+  const xFallback = preferredColumn(analysisState.numericColumns, [/^time/i, /time/i, /timestamp/i], "sample");
+  const yFallback = preferredColumn(analysisState.numericColumns, [/speed/i, /accel/i, /rpm/i, /pressure/i], analysisState.numericColumns[0]);
+
+  fillSelect(xSelect, ["sample", ...analysisState.numericColumns.filter((column) => column !== "sample")], xSelect.value || xFallback);
+  fillSelect(ySelect, analysisState.numericColumns.filter((column) => column !== "sample"), ySelect.value || yFallback);
+  updateAnalysisMetrics();
+  renderAnalysisTable();
+  drawAnalysisChart();
+}
+
+async function handleAnalysisFile(file) {
+  if (!file) return;
+
+  try {
+    let parsedRows = null;
+
+    if (typeof file.arrayBuffer === "function") {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      parsedRows = parseMonolithBinary(bytes) || parseGbungEBinary(bytes);
+    }
+
+    if (!parsedRows && typeof file.text === "function") {
+      parsedRows = parseUploadedData(await file.text());
+    }
+
+    const rows = normalizeRows(parsedRows || []);
+    const columns = getColumns(rows);
+    const numericColumns = getNumericColumns(rows, columns);
+
+    analysisState.rows = rows;
+    analysisState.columns = columns;
+    analysisState.numericColumns = numericColumns;
+    analysisState.fileName = file.name;
+
+    if (rows.length === 0 || numericColumns.length === 0) {
+      setAnalysisStatus("숫자형 데이터를 찾지 못했습니다. CSV, JSON, 줄 단위 JSON, 숫자 텍스트 로그를 지원합니다.", "risk");
+      drawEmptyAnalysisChart("No numeric data");
+      renderAnalysisTable();
+      updateAnalysisMetrics();
+      return;
+    }
+
+    setAnalysisStatus(`${file.name} 로드 완료: ${rows.length} samples, ${numericColumns.length} numeric signals`, "good");
+    renderAnalysis();
+  } catch (error) {
+    setAnalysisStatus(`파일을 읽지 못했습니다: ${error.message}`, "risk");
+    drawEmptyAnalysisChart("Read failed");
+  }
+}
+
+function initAnalysisViewer() {
+  const fileInput = document.querySelector("#monolith-file");
+  const xSelect = document.querySelector("#analysis-x-axis");
+  const ySelect = document.querySelector("#analysis-y-axis");
+
+  fileInput.addEventListener("change", (event) => {
+    handleAnalysisFile(event.currentTarget.files[0]);
+  });
+  xSelect.addEventListener("change", () => {
+    updateAnalysisMetrics();
+    drawAnalysisChart();
+  });
+  ySelect.addEventListener("change", drawAnalysisChart);
+
+  fillSelect(xSelect, [], "");
+  fillSelect(ySelect, [], "");
+  drawEmptyAnalysisChart();
+}
+
 function updateAll() {
   updateBrake();
   updateSpring();
@@ -365,4 +1066,5 @@ document.querySelectorAll("input, select, textarea").forEach((field) => {
 saveDefaults();
 activateCalc("brake");
 activateView("intro");
+initAnalysisViewer();
 updateAll();

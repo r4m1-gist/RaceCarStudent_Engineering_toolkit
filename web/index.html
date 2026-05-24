@@ -178,6 +178,41 @@
                   <input name="rearPressure" type="number" min="0" step="0.1" value="0">
                   <em>bar</em>
                 </label>
+                <label>
+                  <span>Pedal force</span>
+                  <input name="pedalForce" type="number" min="0" step="1" value="0">
+                  <em>N</em>
+                </label>
+                <label>
+                  <span>Pedal ratio</span>
+                  <input name="pedalRatio" type="number" min="0" step="0.1" value="0">
+                  <em>-</em>
+                </label>
+                <label>
+                  <span>Front master bore</span>
+                  <input name="frontMasterBore" type="number" min="0" step="0.1" value="0">
+                  <em>mm</em>
+                </label>
+                <label>
+                  <span>Rear master bore</span>
+                  <input name="rearMasterBore" type="number" min="0" step="0.1" value="0">
+                  <em>mm</em>
+                </label>
+                <label>
+                  <span>Balance bar front</span>
+                  <input name="frontBalance" type="number" min="0" max="100" step="1" value="50">
+                  <em>% pedal load</em>
+                </label>
+                <label>
+                  <span>Tire loaded radius</span>
+                  <input name="tireRadius" type="number" min="0" step="1" value="0">
+                  <em>mm</em>
+                </label>
+                <label>
+                  <span>Vehicle mass</span>
+                  <input name="vehicleMass" type="number" min="0" step="1" value="0">
+                  <em>kg with driver</em>
+                </label>
               </div>
             </form>
 
@@ -190,7 +225,7 @@
                 <div id="brake-front-bar"></div>
                 <div id="brake-rear-bar"></div>
               </div>
-              <div class="metric-grid">
+              <div class="metric-grid three">
                 <article>
                   <span>Front bias</span>
                   <strong id="brake-front">-</strong>
@@ -200,16 +235,40 @@
                   <strong id="brake-rear">-</strong>
                 </article>
                 <article>
-                  <span>Front total factor</span>
+                  <span>Front torque factor</span>
                   <strong id="brake-front-factor">-</strong>
                 </article>
                 <article>
-                  <span>Rear total factor</span>
+                  <span>Rear torque factor</span>
                   <strong id="brake-rear-factor">-</strong>
+                </article>
+                <article>
+                  <span>Front line pressure</span>
+                  <strong id="brake-front-pressure">-</strong>
+                </article>
+                <article>
+                  <span>Rear line pressure</span>
+                  <strong id="brake-rear-pressure">-</strong>
+                </article>
+                <article>
+                  <span>Front brake torque</span>
+                  <strong id="brake-front-torque">-</strong>
+                </article>
+                <article>
+                  <span>Rear brake torque</span>
+                  <strong id="brake-rear-torque">-</strong>
+                </article>
+                <article>
+                  <span>Total brake force</span>
+                  <strong id="brake-total-force">-</strong>
+                </article>
+                <article>
+                  <span>Hydraulic decel</span>
+                  <strong id="brake-decel">-</strong>
                 </article>
               </div>
               <p class="formula">
-                total factor = line pressure × piston area × clamp multiplier × disc count × effective radius × pad μ
+                brake torque = line pressure × piston area × clamp multiplier × disc count × effective radius × pad μ. Decel excludes tire grip and load transfer limits.
               </p>
             </div>
           </div>
@@ -387,34 +446,106 @@
         <section class="view-section" data-view-panel="analysis" aria-labelledby="tool-title">
           <div class="analysis-hero">
             <div>
-              <p class="intro-kicker">Connected repository</p>
-              <h3>G-BungE Log Analysis</h3>
+              <p class="intro-kicker">Vehicle data viewer</p>
+              <h3>Monolith / G-BungE 로그 바로 보기</h3>
               <p>
-                테스트 로그를 깊게 분석할 때는 별도 레포지토리인
-                G-BungE_LogAnalysis_Modified_Mk.4로 이어지도록 구성했습니다.
-                이 툴킷에서는 데이터 분석 입구를 제공하고, 실제 분석 로직은 전문 레포에서 관리하는 흐름입니다.
+                TMA-1 또는 G-BungE Mk.4 로그와 CSV/JSON 테스트 데이터를 브라우저에서 바로 열어
+                요약값, 그래프, 테이블로 확인합니다. 데이터는 로컬 브라우저에서만 처리됩니다.
               </p>
             </div>
-            <a class="repo-link" href="https://github.com/r4m1-gist/G-BungE_LogAnalysis_Modified_Mk.4" target="_blank" rel="noreferrer">
-              Open Repository
-            </a>
+            <div class="hero-actions">
+              <a class="repo-link" href="https://v2.monolith.luftaquila.io" target="_blank" rel="noreferrer">
+                Control Hub
+              </a>
+              <a class="repo-link secondary" href="https://github.com/r4m1-gist/G-BungE_LogAnalysis_Modified_Mk.4" target="_blank" rel="noreferrer">
+                Mk.4 Log CLI
+              </a>
+            </div>
           </div>
 
-          <div class="overview-grid">
+          <div class="analysis-layout">
+            <section class="input-card">
+              <div class="section-heading">
+                <h3>데이터 업로드</h3>
+                <span>.log / .csv / .json</span>
+              </div>
+              <label class="file-drop">
+                <input id="monolith-file" type="file" accept=".log,.csv,.json,.txt,text/plain,text/csv,application/json">
+                <span>Monolith / G-BungE 로그 또는 테스트 데이터 선택</span>
+                <em>다운로드한 파일을 선택하면 즉시 분석합니다.</em>
+              </label>
+              <div class="input-grid compact analysis-controls">
+                <label>
+                  <span>X axis</span>
+                  <select id="analysis-x-axis"></select>
+                  <em>시간 또는 샘플 인덱스</em>
+                </label>
+                <label>
+                  <span>Signal</span>
+                  <select id="analysis-y-axis"></select>
+                  <em>그래프로 볼 값</em>
+                </label>
+              </div>
+              <div class="chain-status" id="analysis-status">아직 로드된 데이터가 없습니다.</div>
+            </section>
+
+            <section class="result-card chart-card">
+              <div class="section-heading">
+                <h3>그래프</h3>
+                <span id="analysis-chart-label">No signal</span>
+              </div>
+              <canvas id="analysis-chart" width="980" height="360" aria-label="Uploaded data graph"></canvas>
+            </section>
+          </div>
+
+          <div class="metric-grid three analysis-metrics">
+            <article>
+              <span>Samples</span>
+              <strong id="analysis-samples">-</strong>
+            </article>
+            <article>
+              <span>Duration</span>
+              <strong id="analysis-duration">-</strong>
+            </article>
+            <article>
+              <span>Signals</span>
+              <strong id="analysis-signals">-</strong>
+            </article>
+          </div>
+
+          <section class="result-card">
+            <div class="section-heading">
+              <h3>데이터 테이블</h3>
+              <span id="analysis-table-label">상위 120개 샘플</span>
+            </div>
+            <div class="table-wrap">
+              <table id="analysis-table">
+                <thead></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="overview-grid analysis-links">
             <article class="overview-card">
-              <span>Acceleration Log</span>
-              <h3>가속 로그 보기</h3>
-              <p>시간, 속도, 가속도 데이터를 정리한 뒤 G-BungE 로그 분석 레포에서 그래프와 요약값을 확인합니다.</p>
+              <span>Monolith</span>
+              <h3>원본 Control Hub</h3>
+              <p>실시간 텔레메트리, 원격 다운로드, 기기 설정은 Monolith Control Hub에서 계속 사용할 수 있습니다.</p>
             </article>
             <article class="overview-card">
-              <span>Brake Test</span>
-              <h3>브레이크 테스트</h3>
-              <p>전후 브레이크 압력과 속도 변화를 함께 보고 제동 반복성을 비교합니다.</p>
+              <span>Mk.4 CLI</span>
+              <h3>G-BungE 로그 분석 CLI</h3>
+              <p>깊은 주행 분석과 기존 Python 워크플로우는 G-BungE_LogAnalysis_Modified_Mk.4 레포를 참고합니다.</p>
             </article>
             <article class="overview-card">
-              <span>Run Compare</span>
-              <h3>테스트 런 비교</h3>
-              <p>여러 주행 데이터를 나란히 비교해 최고 속도, 최대 가속도, 주행 거리 차이를 확인합니다.</p>
+              <span>Local first</span>
+              <h3>브라우저 내부 처리</h3>
+              <p>업로드한 파일은 서버로 전송하지 않고 현재 브라우저 메모리에서 파싱하고 표시합니다.</p>
+            </article>
+            <article class="overview-card">
+              <span>Parser</span>
+              <h3>자동 포맷 감지</h3>
+              <p>Monolith v2 바이너리, G-BungE Mk.4 바이너리, CSV, JSON, 숫자형 텍스트 로그를 지원합니다.</p>
             </article>
           </div>
         </section>

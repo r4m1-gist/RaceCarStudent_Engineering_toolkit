@@ -319,6 +319,61 @@ textarea {
   line-height: 1.65;
 }
 
+.hero-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.analysis-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.78fr) minmax(460px, 1.35fr);
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.file-drop {
+  min-height: 148px;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: 22px;
+  border: 1px dashed rgba(31, 138, 131, 0.55);
+  border-radius: 8px;
+  background: rgba(31, 138, 131, 0.08);
+  cursor: pointer;
+  text-align: center;
+}
+
+.file-drop input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.file-drop span {
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.analysis-controls {
+  margin-top: 14px;
+}
+
+.analysis-metrics {
+  margin-bottom: 18px;
+}
+
+.analysis-links {
+  margin-top: 18px;
+}
+
 .repo-link {
   flex: 0 0 auto;
   display: inline-flex;
@@ -335,6 +390,18 @@ textarea {
 
 .repo-link:hover {
   background: var(--nav-soft);
+}
+
+.repo-link.secondary {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--nav);
+}
+
+.repo-link.secondary:hover {
+  border-color: rgba(31, 138, 131, 0.42);
+  background: rgba(31, 138, 131, 0.1);
+  color: var(--teal);
 }
 
 .overview-card {
@@ -628,6 +695,7 @@ th {
 
   .calculator-layout,
   .analysis-hero,
+  .analysis-layout,
   .intro-layout,
   .overview-grid,
   .wide-layout {
@@ -637,6 +705,10 @@ th {
   .analysis-hero {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .hero-actions {
+    justify-content: stretch;
   }
 }
 
