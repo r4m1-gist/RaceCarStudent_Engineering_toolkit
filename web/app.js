@@ -1,4 +1,11 @@
-const toolTitles = {
+const viewTitles = {
+  intro: "Intro",
+  calculators: "Calculators",
+  checklists: "Checklists",
+  analysis: "Data Analysis",
+};
+
+const calcTitles = {
   brake: "Brake Bias",
   spring: "Spring Rate",
   motion: "Motion Ratio",
@@ -43,26 +50,49 @@ function resetForm(tool) {
   updateAll();
 }
 
-function activateTool(tool) {
+let activeCalc = "brake";
+
+function activateView(view) {
   document.querySelectorAll(".nav-button").forEach((button) => {
-    button.classList.toggle("active", button.dataset.tool === tool);
+    button.classList.toggle("active", button.dataset.view === view);
   });
-  document.querySelectorAll(".tool-section").forEach((panel) => {
-    panel.classList.toggle("active", panel.dataset.panel === tool);
+  document.querySelectorAll(".view-section").forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.viewPanel === view);
   });
-  document.querySelector("#tool-title").textContent = toolTitles[tool];
-  document.querySelector("#reset-tool").dataset.tool = tool;
+  document.querySelector("#tool-title").textContent = view === "calculators" ? calcTitles[activeCalc] : viewTitles[view];
+  const resetButton = document.querySelector("#reset-tool");
+  resetButton.dataset.calc = activeCalc;
+  resetButton.classList.toggle("is-hidden", view !== "calculators");
+}
+
+function activateCalc(calc) {
+  activeCalc = calc;
+  document.querySelectorAll(".calc-tab").forEach((button) => {
+    button.classList.toggle("active", button.dataset.calc === calc);
+  });
+  document.querySelectorAll(".calc-panel").forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.calcPanel === calc);
+  });
+  const calculatorViewActive = document.querySelector('[data-view-panel="calculators"]').classList.contains("active");
+  if (calculatorViewActive) {
+    document.querySelector("#tool-title").textContent = calcTitles[calc];
+    document.querySelector("#reset-tool").dataset.calc = calc;
+  }
 }
 
 function updateBrake() {
   const form = document.querySelector('[data-form="brake"]');
   const front =
     numberValue(form, "frontArea") *
+    numberValue(form, "frontCaliperMultiplier") *
+    integerValue(form, "frontDiscs") *
     numberValue(form, "frontRadius") *
     numberValue(form, "frontMu") *
     numberValue(form, "frontPressure");
   const rear =
     numberValue(form, "rearArea") *
+    numberValue(form, "rearCaliperMultiplier") *
+    integerValue(form, "rearDiscs") *
     numberValue(form, "rearRadius") *
     numberValue(form, "rearMu") *
     numberValue(form, "rearPressure");
@@ -313,12 +343,18 @@ function updateAll() {
 
 document.querySelectorAll(".nav-button").forEach((button) => {
   button.addEventListener("click", () => {
-    activateTool(button.dataset.tool);
+    activateView(button.dataset.view);
+  });
+});
+
+document.querySelectorAll(".calc-tab").forEach((button) => {
+  button.addEventListener("click", () => {
+    activateCalc(button.dataset.calc);
   });
 });
 
 document.querySelector("#reset-tool").addEventListener("click", (event) => {
-  resetForm(event.currentTarget.dataset.tool || "brake");
+  resetForm(event.currentTarget.dataset.calc || activeCalc);
 });
 
 document.querySelectorAll("input, select, textarea").forEach((field) => {
@@ -327,5 +363,6 @@ document.querySelectorAll("input, select, textarea").forEach((field) => {
 });
 
 saveDefaults();
-activateTool("brake");
+activateCalc("brake");
+activateView("intro");
 updateAll();

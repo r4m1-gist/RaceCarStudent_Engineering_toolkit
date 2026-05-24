@@ -15,16 +15,24 @@ def calculate_brake_bias(
     rear_pad_mu: float = 0.45,
     front_line_pressure_bar: float = 1.0,
     rear_line_pressure_bar: float = 1.0,
+    front_caliper_multiplier: float = 2.0,
+    rear_caliper_multiplier: float = 1.0,
+    front_disc_count: int = 2,
+    rear_disc_count: int = 1,
 ) -> dict[str, float]:
     front_torque_factor = (
         front_line_pressure_bar
         * front_piston_area_mm2
+        * front_caliper_multiplier
+        * front_disc_count
         * front_effective_radius_mm
         * front_pad_mu
     )
     rear_torque_factor = (
         rear_line_pressure_bar
         * rear_piston_area_mm2
+        * rear_caliper_multiplier
+        * rear_disc_count
         * rear_effective_radius_mm
         * rear_pad_mu
     )
@@ -50,6 +58,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--rear-pad-mu", type=float, default=0.45)
     parser.add_argument("--front-line-pressure-bar", type=float, default=1.0)
     parser.add_argument("--rear-line-pressure-bar", type=float, default=1.0)
+    parser.add_argument("--front-caliper-multiplier", type=float, default=2.0)
+    parser.add_argument("--rear-caliper-multiplier", type=float, default=1.0)
+    parser.add_argument("--front-disc-count", type=int, default=2)
+    parser.add_argument("--rear-disc-count", type=int, default=1)
     return parser
 
 
