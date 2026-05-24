@@ -1,0 +1,22 @@
+vehicle_mass_kg: 230
+driver_mass_kg: 75
+wheel_radius_m: 0.235
+final_drive_ratio: 3.7
+gear_ratios: [2.80, 2.05, 1.60, 1.32, 1.13, 0.96]
+drivetrain_efficiency: 0.88
+shift_rpm: 11500
+redline_rpm: 12000
+idle_rpm: 3500
+drag_coefficient: 0.85
+frontal_area_m2: 1.05
+rolling_resistance_coefficient: 0.018
+air_density_kg_m3: 1.225
+time_step_s: 0.02
+duration_s: 12
+engine_torque_curve_nm:
+  - [3500, 35]
+  - [5000, 52]
+  - [7000, 66]
+  - [9000, 70]
+  - [11000, 64]
+  - [12000, 55]

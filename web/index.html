@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RaceCarStudent Engineering Toolkit</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Toolkit navigation">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">RC</div>
+          <div>
+            <h1>Engineering Toolkit</h1>
+            <p>FSK / BSK setup calculator</p>
+          </div>
+        </div>
+
+        <nav class="tool-nav" aria-label="Calculators">
+          <button class="nav-button active" type="button" data-tool="brake">Brake Bias</button>
+          <button class="nav-button" type="button" data-tool="spring">Spring Rate</button>
+          <button class="nav-button" type="button" data-tool="motion">Motion Ratio</button>
+          <button class="nav-button" type="button" data-tool="chain">Chain Drive</button>
+        </nav>
+
+        <section class="note-panel" aria-label="Input note">
+          <h2>단위 기준</h2>
+          <p>길이는 mm 또는 m, 힘은 N, 압력은 bar 기준입니다. 결과는 입력할 때마다 바로 갱신됩니다.</p>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="workspace-header">
+          <div>
+            <p class="eyebrow">Race car student workflow</p>
+            <h2 id="tool-title">Brake Bias</h2>
+          </div>
+          <button class="ghost-button" id="reset-tool" type="button" title="현재 계산기 기본값 복원">Reset</button>
+        </header>
+
+        <section class="tool-section active" data-panel="brake" aria-labelledby="tool-title">
+          <div class="calculator-layout">
+            <form class="input-card" data-form="brake">
+              <div class="section-heading">
+                <h3>입력값</h3>
+                <span>캘리퍼와 디스크 치수</span>
+              </div>
+              <div class="input-grid">
+                <label>
+                  <span>Front piston area</span>
+                  <input name="frontArea" type="number" min="0" step="1" value="1800">
+                  <em>mm²</em>
+                </label>
+                <label>
+                  <span>Rear piston area</span>
+                  <input name="rearArea" type="number" min="0" step="1" value="1200">
+                  <em>mm²</em>
+                </label>
+                <label>
+                  <span>Front effective radius</span>
+                  <input name="frontRadius" type="number" min="0" step="1" value="95">
+                  <em>mm</em>
+                </label>
+                <label>
+                  <span>Rear effective radius</span>
+                  <input name="rearRadius" type="number" min="0" step="1" value="85">
+                  <em>mm</em>
+                </label>
+                <label>
+                  <span>Front pad μ</span>
+                  <input name="frontMu" type="number" min="0" step="0.01" value="0.45">
+                  <em>-</em>
+                </label>
+                <label>
+                  <span>Rear pad μ</span>
+                  <input name="rearMu" type="number" min="0" step="0.01" value="0.45">
+                  <em>-</em>
+                </label>
+                <label>
+                  <span>Front pressure</span>
+                  <input name="frontPressure" type="number" min="0" step="0.1" value="1">
+                  <em>bar</em>
+                </label>
+                <label>
+                  <span>Rear pressure</span>
+                  <input name="rearPressure" type="number" min="0" step="0.1" value="1">
+                  <em>bar</em>
+                </label>
+              </div>
+            </form>
+
+            <div class="result-card">
+              <div class="section-heading">
+                <h3>결과</h3>
+                <span>정적 토크 비율</span>
+              </div>
+              <div class="bias-meter" aria-label="Brake bias meter">
+                <div id="brake-front-bar"></div>
+                <div id="brake-rear-bar"></div>
+              </div>
+              <div class="metric-grid">
+                <article>
+                  <span>Front bias</span>
+                  <strong id="brake-front">-</strong>
+                </article>
+                <article>
+                  <span>Rear bias</span>
+                  <strong id="brake-rear">-</strong>
+                </article>
+                <article>
+                  <span>Front factor</span>
+                  <strong id="brake-front-factor">-</strong>
+                </article>
+                <article>
+                  <span>Rear factor</span>
+                  <strong id="brake-rear-factor">-</strong>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tool-section" data-panel="spring" aria-labelledby="tool-title">
+          <div class="calculator-layout">
+            <form class="input-card" data-form="spring">
+              <div class="section-heading">
+                <h3>입력값</h3>
+                <span>타깃 휠레이트 역산</span>
+              </div>
+              <div class="input-grid">
+                <label>
+                  <span>Target wheel rate</span>
+                  <input name="wheelRate" type="number" min="0" step="0.1" value="35">
+                  <em>N/mm</em>
+                </label>
+                <label>
+                  <span>Motion ratio</span>
+                  <input name="motionRatio" type="number" min="0" step="0.01" value="0.78">
+                  <em>spring/wheel</em>
+                </label>
+                <label>
+                  <span>Tire rate</span>
+                  <input name="tireRate" type="number" min="0" step="1" value="220">
+                  <em>N/mm</em>
+                </label>
+              </div>
+            </form>
+            <div class="result-card">
+              <div class="section-heading">
+                <h3>결과</h3>
+                <span>스프링 선택 기준</span>
+              </div>
+              <div class="metric-grid two">
+                <article>
+                  <span>Required spring rate</span>
+                  <strong id="spring-rate">-</strong>
+                </article>
+                <article>
+                  <span>Suspension wheel rate</span>
+                  <strong id="suspension-wheel-rate">-</strong>
+                </article>
+              </div>
+              <p class="formula">spring rate = suspension wheel rate / motion ratio²</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="tool-section" data-panel="motion" aria-labelledby="tool-title">
+          <div class="calculator-layout">
+            <form class="input-card" data-form="motion">
+              <div class="section-heading">
+                <h3>입력값</h3>
+                <span>실측 스트로크 기반</span>
+              </div>
+              <div class="input-grid">
+                <label>
+                  <span>Wheel travel</span>
+                  <input name="wheelTravel" type="number" min="0" step="0.1" value="30">
+                  <em>mm</em>
+                </label>
+                <label>
+                  <span>Spring travel</span>
+                  <input name="springTravel" type="number" min="0" step="0.1" value="23.4">
+                  <em>mm</em>
+                </label>
+              </div>
+            </form>
+            <div class="result-card">
+              <div class="section-heading">
+                <h3>결과</h3>
+                <span>댐퍼/스프링 레버비</span>
+              </div>
+              <div class="metric-grid two">
+                <article>
+                  <span>Motion ratio</span>
+                  <strong id="motion-ratio">-</strong>
+                </article>
+                <article>
+                  <span>Installation ratio</span>
+                  <strong id="installation-ratio">-</strong>
+                </article>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tool-section" data-panel="chain" aria-labelledby="tool-title">
+          <div class="wide-layout">
+            <form class="input-card" data-form="chain">
+              <div class="section-heading">
+                <h3>입력값</h3>
+                <span>체인 / 스프로킷 패키징</span>
+              </div>
+              <div class="input-grid compact">
+                <label>
+                  <span>Chain size</span>
+                  <select name="chainSize">
+                    <option value="420">420</option>
+                    <option value="428">428</option>
+                    <option value="520">520</option>
+                  </select>
+                  <em>standard</em>
+                </label>
+                <label><span>Target center distance</span><input name="centerDistance" type="number" min="0" step="1" value="360"><em>mm</em></label>
+                <label><span>Motor sprocket</span><input name="motorTeeth" type="number" min="8" step="1" value="14"><em>teeth</em></label>
+                <label><span>Wheel sprocket</span><input name="wheelTeeth" type="number" min="8" step="1" value="52"><em>teeth</em></label>
+                <label><span>Axle adjust range</span><input name="adjustRange" type="number" min="0" step="1" value="18"><em>± mm</em></label>
+                <label><span>Minimum wrap target</span><input name="minWrap" type="number" min="60" max="180" step="1" value="120"><em>deg</em></label>
+              </div>
+            </form>
+
+            <div class="result-card chart-card">
+              <div class="section-heading">
+                <h3>결과</h3>
+                <span>추천 코수 / 감김각</span>
+              </div>
+              <div class="metric-grid three">
+                <article>
+                  <span>Recommended links</span>
+                  <strong id="chain-links">-</strong>
+                </article>
+                <article>
+                  <span>Small sprocket wrap</span>
+                  <strong id="chain-wrap">-</strong>
+                </article>
+                <article>
+                  <span>Final drive ratio</span>
+                  <strong id="chain-ratio">-</strong>
+                </article>
+              </div>
+              <canvas id="chain-diagram" width="860" height="300" aria-label="Chain layout diagram"></canvas>
+              <div class="chain-status" id="chain-status">-</div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Links</th>
+                      <th>Center</th>
+                      <th>Error</th>
+                      <th>Wrap</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="chain-options"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
