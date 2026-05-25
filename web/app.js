@@ -10,6 +10,7 @@ const calcTitles = {
   spring: "Spring Rate",
   motion: "Motion Ratio",
   geometry: "Geometry Setup",
+  steering: "Steering Setup",
   chain: "Chain Drive",
 };
 
@@ -214,6 +215,10 @@ function signedDeg(radians, direction) {
   return (radians * 180 * sign) / Math.PI;
 }
 
+function degToRad(degrees) {
+  return (degrees * Math.PI) / 180;
+}
+
 function parseMassPoints(text) {
   return text
     .split(/\r?\n/)
@@ -242,7 +247,25 @@ function calculateCg(points) {
   };
 }
 
-function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius, direction }) {
+function ackermannPercent(innerDeg, outerDeg, trackM, wheelbaseM) {
+  const inner = degToRad(Math.abs(innerDeg));
+  const outer = degToRad(Math.abs(outerDeg));
+  if (inner <= 0 || outer <= 0 || trackM <= 0 || wheelbaseM <= 0) return NaN;
+  return ((1 / Math.tan(outer) - 1 / Math.tan(inner)) / (trackM / wheelbaseM)) * 100;
+}
+
+function measuredTurnRadius(innerDeg, outerDeg, trackM, wheelbaseM) {
+  const inner = degToRad(Math.abs(innerDeg));
+  const outer = degToRad(Math.abs(outerDeg));
+  const radii = [];
+
+  if (inner > 0 && wheelbaseM > 0) radii.push(wheelbaseM / Math.tan(inner) + trackM / 2);
+  if (outer > 0 && wheelbaseM > 0) radii.push(wheelbaseM / Math.tan(outer) - trackM / 2);
+  if (radii.length === 0) return NaN;
+  return radii.reduce((sum, radius) => sum + radius, 0) / radii.length;
+}
+
+function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius }) {
   const canvas = document.querySelector("#geo-diagram");
   const context = canvas.getContext("2d");
   const width = canvas.width;
@@ -316,7 +339,7 @@ function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius, direct
   context.fillStyle = "#627080";
   context.font = "13px system-ui, sans-serif";
   context.fillText(`${format(wheelbase, 3, " m")} wheelbase`, width / 2, 24);
-  context.fillText(`${direction} turn, R ${format(turnRadius, 1, " m")}`, width / 2, height - 20);
+  context.fillText(`R ${format(turnRadius, 1, " m")} reference`, width / 2, height - 20);
 }
 
 function updateGeometry() {
@@ -330,8 +353,6 @@ function updateGeometry() {
   const wheelbase = distance2d(frontCenter, rearCenter);
   const frontTrack = distance2d(fl, fr);
   const rearTrack = distance2d(rl, rr);
-  const averageTrack = (frontTrack + rearTrack) / 2;
-  const direction = form.elements.turnDirection.value;
   const turnRadius = numberValue(form, "turnRadius");
   const speed = numberValue(form, "speedKph") / 3.6;
   const yawArm = numberValue(form, "yawArm");
@@ -339,10 +360,6 @@ function updateGeometry() {
   const cg = calculateCg(massPoints);
   const cgMeters = { x: cg.x / 1000, y: cg.y / 1000 };
 
-  const usableSteering = wheelbase > 0 && turnRadius > averageTrack / 2 && turnRadius > 0;
-  const centerAngle = usableSteering ? Math.atan(wheelbase / turnRadius) : NaN;
-  const innerAngle = usableSteering ? Math.atan(wheelbase / (turnRadius - averageTrack / 2)) : NaN;
-  const outerAngle = usableSteering ? Math.atan(wheelbase / (turnRadius + averageTrack / 2)) : NaN;
   const yawRate = turnRadius > 0 ? speed / turnRadius : NaN;
   const lateralAccel = turnRadius > 0 ? speed ** 2 / turnRadius / 9.80665 : NaN;
   const corneringForce = Number.isFinite(cg.totalMass) && turnRadius > 0 ? (cg.totalMass * speed ** 2) / turnRadius : NaN;
@@ -355,12 +372,6 @@ function updateGeometry() {
   document.querySelector("#geo-wheelbase").textContent = format(wheelbase, 3, " m");
   document.querySelector("#geo-track").textContent = `${format(frontTrack, 3, " m")} / ${format(rearTrack, 3, " m")}`;
   document.querySelector("#geo-mass").textContent = format(cg.totalMass, 1, " kg");
-  document.querySelector("#geo-steer").textContent = format(signedDeg(centerAngle, direction), 2, " deg");
-  document.querySelector("#geo-ackermann").textContent = `${format(signedDeg(innerAngle, direction), 2, " deg")} / ${format(
-    signedDeg(outerAngle, direction),
-    2,
-    " deg",
-  )}`;
   document.querySelector("#geo-radius").textContent = format(displayRadius, 1, " m");
   document.querySelector("#geo-latacc").textContent = format(lateralAccel, 2, " g");
   document.querySelector("#geo-yaw-rate").textContent = format(yawRate, 3, " rad/s");
@@ -371,15 +382,78 @@ function updateGeometry() {
   if (massPoints.length === 0) {
     status.classList.add("risk");
     status.textContent = "질량점 형식을 확인하세요. 각 줄은 name, x, y, z, mass 또는 x, y, z, mass 형식입니다.";
-  } else if (!usableSteering) {
+  } else if (turnRadius <= 0) {
     status.classList.add("check");
-    status.textContent = "회전반경이 너무 작거나 휠 좌표가 부족해서 Ackermann 조향각을 계산하기 어렵습니다.";
+    status.textContent = "회전반경을 입력하면 yaw rate와 lateral acceleration을 계산합니다.";
   } else {
     status.classList.add("good");
-    status.textContent = `${massPoints.length}개 질량점으로 CG를 계산했습니다. 30 m 이상 회전반경은 표시용 반경을 0으로 처리합니다.`;
+    status.textContent = `${massPoints.length}개 질량점으로 CG를 계산했습니다. 조향 관련 값은 Steering Setup 탭에서 따로 확인합니다.`;
   }
 
-  drawGeometryDiagram({ fl, fr, rl, rr, cg: cgMeters, wheelbase, turnRadius, direction });
+  drawGeometryDiagram({ fl, fr, rl, rr, cg: cgMeters, wheelbase, turnRadius });
+}
+
+function updateSteering() {
+  const form = document.querySelector('[data-form="steering"]');
+  const wheelbase = numberValue(form, "wheelbase");
+  const frontTrack = numberValue(form, "frontTrack");
+  const turnRadius = numberValue(form, "turnRadius");
+  const direction = form.elements.turnDirection.value;
+  const steeringWheelAngle = numberValue(form, "steeringWheelAngle");
+  const rackTravel = numberValue(form, "rackTravel");
+  const pinionRadius = numberValue(form, "pinionRadius");
+  const steeringArm = numberValue(form, "steeringArm");
+  const actualInnerAngle = numberValue(form, "actualInnerAngle");
+  const actualOuterAngle = numberValue(form, "actualOuterAngle");
+
+  const usableSteering = wheelbase > 0 && turnRadius > frontTrack / 2 && turnRadius > 0;
+  const centerAngle = usableSteering ? Math.atan(wheelbase / turnRadius) : NaN;
+  const innerAngle = usableSteering ? Math.atan(wheelbase / (turnRadius - frontTrack / 2)) : NaN;
+  const outerAngle = usableSteering ? Math.atan(wheelbase / (turnRadius + frontTrack / 2)) : NaN;
+  const idealInnerDeg = usableSteering ? Math.abs(signedDeg(innerAngle, direction)) : NaN;
+  const idealOuterDeg = usableSteering ? Math.abs(signedDeg(outerAngle, direction)) : NaN;
+  const measuredInnerDeg = actualInnerAngle > 0 ? actualInnerAngle : idealInnerDeg;
+  const measuredOuterDeg = actualOuterAngle > 0 ? actualOuterAngle : idealOuterDeg;
+  const averageRoadWheelAngle =
+    measuredInnerDeg > 0 && measuredOuterDeg > 0 ? (measuredInnerDeg + measuredOuterDeg) / 2 : Math.abs(signedDeg(centerAngle, direction));
+  const steeringRatio = averageRoadWheelAngle > 0 ? steeringWheelAngle / averageRoadWheelAngle : NaN;
+  const ackermann = ackermannPercent(measuredInnerDeg, measuredOuterDeg, frontTrack, wheelbase);
+  const measuredRadius = measuredTurnRadius(measuredInnerDeg, measuredOuterDeg, frontTrack, wheelbase);
+  const radiusError = Number.isFinite(measuredRadius) ? measuredRadius - turnRadius : NaN;
+  const rackPerSteeringDeg = steeringWheelAngle > 0 ? rackTravel / steeringWheelAngle : NaN;
+  const pinionTravel = pinionRadius > 0 ? 2 * Math.PI * pinionRadius * (steeringWheelAngle / 360) : NaN;
+  const rackSteer = steeringArm > 0 ? Math.atan(rackTravel / steeringArm) : NaN;
+
+  document.querySelector("#steer-center-angle").textContent = format(signedDeg(centerAngle, direction), 2, " deg");
+  document.querySelector("#steer-ideal-angles").textContent = `${format(signedDeg(innerAngle, direction), 2, " deg")} / ${format(
+    signedDeg(outerAngle, direction),
+    2,
+    " deg",
+  )}`;
+  document.querySelector("#steer-ratio").textContent = format(steeringRatio, 2, ":1");
+  document.querySelector("#steer-ackermann-percent").textContent = format(ackermann, 1, "%");
+  document.querySelector("#steer-measured-radius").textContent = format(measuredRadius, 2, " m");
+  document.querySelector("#steer-radius-error").textContent = format(radiusError, 2, " m");
+  document.querySelector("#steer-rack-ratio").textContent = format(rackPerSteeringDeg, 3, " mm/deg");
+  document.querySelector("#steer-pinion-travel").textContent = format(pinionTravel, 1, " mm");
+  document.querySelector("#steer-rack-steer").textContent = format(signedDeg(rackSteer, direction), 2, " deg");
+
+  const status = document.querySelector("#steer-status");
+  status.className = "chain-status";
+  if (!usableSteering) {
+    status.classList.add("check");
+    status.textContent = "Wheelbase, front track, target turn radius를 확인하세요. 회전반경은 track/2보다 커야 합니다.";
+  } else if (!Number.isFinite(ackermann)) {
+    status.classList.add("risk");
+    status.textContent = "Measured inner/outer angle을 입력하면 Ackermann percent를 계산합니다.";
+  } else {
+    status.classList.add("good");
+    status.textContent = `Steering ratio ${format(steeringRatio, 2, ":1")}, Ackermann ${format(
+      ackermann,
+      1,
+      "%",
+    )}, 목표 반경 대비 ${format(radiusError, 2, " m")}입니다.`;
+  }
 }
 
 function pitchRadius(pitchMm, teeth) {
@@ -1232,6 +1306,7 @@ function updateAll() {
   updateSpring();
   updateMotion();
   updateGeometry();
+  updateSteering();
   updateChain();
 }
 

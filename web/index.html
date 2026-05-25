@@ -99,6 +99,7 @@
             <button class="calc-tab" type="button" data-calc="spring">Spring Rate</button>
             <button class="calc-tab" type="button" data-calc="motion">Motion Ratio</button>
             <button class="calc-tab" type="button" data-calc="geometry">Geometry Setup</button>
+            <button class="calc-tab" type="button" data-calc="steering">Steering Setup</button>
             <button class="calc-tab" type="button" data-calc="chain">Chain Drive</button>
           </nav>
 
@@ -363,7 +364,7 @@
             <form class="input-card" data-form="geometry">
               <div class="section-heading">
                 <h3>입력값</h3>
-                <span>좌표 기반 CG / 조향 세팅</span>
+                <span>좌표 기반 CG / 동특성 1차값</span>
               </div>
               <div class="input-grid compact">
                 <label><span>FL X</span><input name="flX" type="number" step="1" value="1600"><em>mm</em></label>
@@ -376,14 +377,6 @@
                 <label><span>RR Y</span><input name="rrY" type="number" step="1" value="-600"><em>mm</em></label>
                 <label><span>Vehicle speed</span><input name="speedKph" type="number" min="0" step="1" value="35"><em>km/h</em></label>
                 <label><span>Turn radius</span><input name="turnRadius" type="number" min="0" step="0.1" value="8"><em>m, centerline</em></label>
-                <label>
-                  <span>Turn direction</span>
-                  <select name="turnDirection">
-                    <option value="left">Left</option>
-                    <option value="right">Right</option>
-                  </select>
-                  <em>inner wheel side</em>
-                </label>
                 <label><span>Yaw moment arm</span><input name="yawArm" type="number" min="0" step="0.01" value="0.72"><em>m, CG to tire CP estimate</em></label>
               </div>
               <label class="textarea-label">
@@ -399,7 +392,7 @@ frame,780,0,260,55</textarea>
             <div class="result-card chart-card">
               <div class="section-heading">
                 <h3>결과</h3>
-                <span>CG / Ackermann / 동특성 1차값</span>
+                <span>CG / Wheelbase / Yaw</span>
               </div>
               <div class="metric-grid three">
                 <article><span>CG X</span><strong id="geo-cg-x">-</strong></article>
@@ -408,8 +401,6 @@ frame,780,0,260,55</textarea>
                 <article><span>Wheelbase</span><strong id="geo-wheelbase">-</strong></article>
                 <article><span>Front / rear track</span><strong id="geo-track">-</strong></article>
                 <article><span>Total point mass</span><strong id="geo-mass">-</strong></article>
-                <article><span>Steering command</span><strong id="geo-steer">-</strong></article>
-                <article><span>Inner / outer angle</span><strong id="geo-ackermann">-</strong></article>
                 <article><span>Radius display</span><strong id="geo-radius">-</strong></article>
                 <article><span>Lateral acceleration</span><strong id="geo-latacc">-</strong></article>
                 <article><span>Yaw rate</span><strong id="geo-yaw-rate">-</strong></article>
@@ -418,7 +409,59 @@ frame,780,0,260,55</textarea>
               <canvas id="geo-diagram" width="860" height="360" aria-label="Vehicle geometry diagram"></canvas>
               <div class="chain-status" id="geo-status">좌표와 질량점을 입력하면 계산됩니다.</div>
               <p class="formula">
-                CG는 입력 질량점의 가중평균입니다. 조향각은 wheelbase, front track, 회전반경으로 Ackermann 기하를 1차 계산합니다.
+                CG는 입력 질량점의 가중평균입니다. Yaw rate와 lateral acceleration은 지정 회전반경과 속도 기준 1차값입니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
+          <section class="calc-panel" data-calc-panel="steering" aria-label="Steering setup calculator">
+          <div class="calculator-layout">
+            <form class="input-card" data-form="steering">
+              <div class="section-heading">
+                <h3>입력값</h3>
+                <span>Steering ratio / Ackermann</span>
+              </div>
+              <div class="input-grid compact">
+                <label><span>Wheelbase</span><input name="wheelbase" type="number" min="0" step="0.001" value="1.600"><em>m</em></label>
+                <label><span>Front track</span><input name="frontTrack" type="number" min="0" step="0.001" value="1.240"><em>m</em></label>
+                <label><span>Target turn radius</span><input name="turnRadius" type="number" min="0" step="0.1" value="8"><em>m, centerline</em></label>
+                <label>
+                  <span>Turn direction</span>
+                  <select name="turnDirection">
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                  </select>
+                  <em>inner wheel side</em>
+                </label>
+                <label><span>Steering wheel angle</span><input name="steeringWheelAngle" type="number" min="0" step="1" value="180"><em>deg at this corner</em></label>
+                <label><span>Rack travel</span><input name="rackTravel" type="number" min="0" step="0.1" value="28"><em>mm at this corner</em></label>
+                <label><span>Pinion pitch radius</span><input name="pinionRadius" type="number" min="0" step="0.1" value="9"><em>mm</em></label>
+                <label><span>Steering arm length</span><input name="steeringArm" type="number" min="0" step="0.1" value="115"><em>mm, simple estimate</em></label>
+                <label><span>Measured inner angle</span><input name="actualInnerAngle" type="number" min="0" step="0.1" value="12.2"><em>deg</em></label>
+                <label><span>Measured outer angle</span><input name="actualOuterAngle" type="number" min="0" step="0.1" value="10.5"><em>deg</em></label>
+              </div>
+            </form>
+
+            <div class="result-card">
+              <div class="section-heading">
+                <h3>결과</h3>
+                <span>기하 이상값과 실측 비교</span>
+              </div>
+              <div class="metric-grid three">
+                <article><span>Center steer angle</span><strong id="steer-center-angle">-</strong></article>
+                <article><span>Ideal inner / outer</span><strong id="steer-ideal-angles">-</strong></article>
+                <article><span>Steering ratio</span><strong id="steer-ratio">-</strong></article>
+                <article><span>Ackermann percent</span><strong id="steer-ackermann-percent">-</strong></article>
+                <article><span>Measured turn radius</span><strong id="steer-measured-radius">-</strong></article>
+                <article><span>Radius error</span><strong id="steer-radius-error">-</strong></article>
+                <article><span>Rack per steering</span><strong id="steer-rack-ratio">-</strong></article>
+                <article><span>Pinion rack travel</span><strong id="steer-pinion-travel">-</strong></article>
+                <article><span>Rack steer estimate</span><strong id="steer-rack-steer">-</strong></article>
+              </div>
+              <div class="chain-status" id="steer-status">조향 기하 입력값을 확인하세요.</div>
+              <p class="formula">
+                Ackermann % = measured cotangent difference / ideal cotangent difference. 100%에 가까울수록 순수 Ackermann 기하에 가깝습니다.
               </p>
             </div>
           </div>

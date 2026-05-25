@@ -36,8 +36,10 @@ Current calculators:
 - Brake bias, including caliper type and disc count
 - Spring rate from target wheel rate
 - Motion ratio from measured travel
-- Geometry setup from coordinate inputs, including CG, Ackermann steering
-  angles, yaw rate, lateral acceleration, and a simple yaw torque estimate
+- Geometry setup from coordinate inputs, including CG, yaw rate, lateral
+  acceleration, and a simple yaw torque estimate
+- Steering setup for steering ratio, Ackermann percent, measured turn radius,
+  rack travel, and ideal inner / outer wheel angles
 - EV chain drive layout for 420 / 428 / 520 chain, including recommended link
   count, center distance, final drive ratio, and small sprocket wrap angle
 

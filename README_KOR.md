@@ -33,7 +33,8 @@ LICENSE
 - Brake Bias
 - Spring Rate
 - Motion Ratio
-- Geometry Setup
+- Geometry Setup: CG, yaw rate
+- Steering Setup: steering ratio, Ackermann
 - Chain Drive
 
 `Data Analysis`는 업로드한 로그, CSV, JSON, 숫자형 텍스트 파일을 브라우저
