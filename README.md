@@ -9,6 +9,12 @@ current demo.
 
 Korean documentation is available in [README_KOR.md](README_KOR.md).
 
+## Live Demo
+
+Open the current GitHub Pages build:
+
+https://r4m1-gist.github.io/RaceCarStudent_Engineering_toolkit/web/index.html
+
 ## Project layout
 
 ```text

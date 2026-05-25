@@ -6,6 +6,14 @@ Formula Student Korea(FSK), Baja Student Korea(BSK), 학생 자작차 팀을 위
 현재 툴킷은 HTML, CSS, JavaScript만 사용합니다. Python 런타임, 설치 과정,
 빌드 과정, 백엔드 서버 없이 브라우저에서 바로 실행하는 구조입니다.
 
+## 공개 데모
+
+현재 GitHub Pages 주소는 아래입니다.
+
+```text
+https://r4m1-gist.github.io/RaceCarStudent_Engineering_toolkit/web/index.html
+```
+
 ## 폴더 구조
 
 ```text
