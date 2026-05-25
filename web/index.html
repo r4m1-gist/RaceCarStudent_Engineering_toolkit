@@ -87,8 +87,7 @@
                 </div>
               </dl>
               <p>
-                팀원이 Python이나 CLI를 몰라도,
-                브라우저에서 바로 쓸 수 있는 도구를 만드는 데 초점을 두었습니다.
+                팀원이 설치 없이 브라우저에서 바로 쓸 수 있는 도구를 만드는 데 초점을 두었습니다.
               </p>
             </aside>
           </div>
@@ -99,6 +98,7 @@
             <button class="calc-tab active" type="button" data-calc="brake">Brake Bias</button>
             <button class="calc-tab" type="button" data-calc="spring">Spring Rate</button>
             <button class="calc-tab" type="button" data-calc="motion">Motion Ratio</button>
+            <button class="calc-tab" type="button" data-calc="geometry">Geometry Setup</button>
             <button class="calc-tab" type="button" data-calc="chain">Chain Drive</button>
           </nav>
 
@@ -358,6 +358,72 @@
           </div>
         </section>
 
+          <section class="calc-panel" data-calc-panel="geometry" aria-label="Geometry setup calculator">
+          <div class="wide-layout">
+            <form class="input-card" data-form="geometry">
+              <div class="section-heading">
+                <h3>입력값</h3>
+                <span>좌표 기반 CG / 조향 세팅</span>
+              </div>
+              <div class="input-grid compact">
+                <label><span>FL X</span><input name="flX" type="number" step="1" value="1600"><em>mm</em></label>
+                <label><span>FL Y</span><input name="flY" type="number" step="1" value="620"><em>mm</em></label>
+                <label><span>FR X</span><input name="frX" type="number" step="1" value="1600"><em>mm</em></label>
+                <label><span>FR Y</span><input name="frY" type="number" step="1" value="-620"><em>mm</em></label>
+                <label><span>RL X</span><input name="rlX" type="number" step="1" value="0"><em>mm</em></label>
+                <label><span>RL Y</span><input name="rlY" type="number" step="1" value="600"><em>mm</em></label>
+                <label><span>RR X</span><input name="rrX" type="number" step="1" value="0"><em>mm</em></label>
+                <label><span>RR Y</span><input name="rrY" type="number" step="1" value="-600"><em>mm</em></label>
+                <label><span>Vehicle speed</span><input name="speedKph" type="number" min="0" step="1" value="35"><em>km/h</em></label>
+                <label><span>Turn radius</span><input name="turnRadius" type="number" min="0" step="0.1" value="8"><em>m, centerline</em></label>
+                <label>
+                  <span>Turn direction</span>
+                  <select name="turnDirection">
+                    <option value="left">Left</option>
+                    <option value="right">Right</option>
+                  </select>
+                  <em>inner wheel side</em>
+                </label>
+                <label><span>Yaw moment arm</span><input name="yawArm" type="number" min="0" step="0.01" value="0.72"><em>m, CG to tire CP estimate</em></label>
+              </div>
+              <label class="textarea-label">
+                <span>Mass point coordinates</span>
+                <textarea name="massPoints" rows="8">driver,820,0,420,75
+battery,600,-120,180,22
+motor,220,0,210,18
+frame,780,0,260,55</textarea>
+                <em>name, x(mm), y(mm), z(mm), mass(kg). name 없이 x,y,z,mass도 가능</em>
+              </label>
+            </form>
+
+            <div class="result-card chart-card">
+              <div class="section-heading">
+                <h3>결과</h3>
+                <span>CG / Ackermann / 동특성 1차값</span>
+              </div>
+              <div class="metric-grid three">
+                <article><span>CG X</span><strong id="geo-cg-x">-</strong></article>
+                <article><span>CG Y</span><strong id="geo-cg-y">-</strong></article>
+                <article><span>CG Z</span><strong id="geo-cg-z">-</strong></article>
+                <article><span>Wheelbase</span><strong id="geo-wheelbase">-</strong></article>
+                <article><span>Front / rear track</span><strong id="geo-track">-</strong></article>
+                <article><span>Total point mass</span><strong id="geo-mass">-</strong></article>
+                <article><span>Steering command</span><strong id="geo-steer">-</strong></article>
+                <article><span>Inner / outer angle</span><strong id="geo-ackermann">-</strong></article>
+                <article><span>Radius display</span><strong id="geo-radius">-</strong></article>
+                <article><span>Lateral acceleration</span><strong id="geo-latacc">-</strong></article>
+                <article><span>Yaw rate</span><strong id="geo-yaw-rate">-</strong></article>
+                <article><span>Yaw torque estimate</span><strong id="geo-yaw-torque">-</strong></article>
+              </div>
+              <canvas id="geo-diagram" width="860" height="360" aria-label="Vehicle geometry diagram"></canvas>
+              <div class="chain-status" id="geo-status">좌표와 질량점을 입력하면 계산됩니다.</div>
+              <p class="formula">
+                CG는 입력 질량점의 가중평균입니다. 조향각은 wheelbase, front track, 회전반경으로 Ackermann 기하를 1차 계산합니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
           <section class="calc-panel" data-calc-panel="chain" aria-label="Chain Drive calculator">
           <div class="wide-layout">
             <form class="input-card" data-form="chain">
@@ -458,7 +524,7 @@
                 Control Hub
               </a>
               <a class="repo-link secondary" href="https://github.com/r4m1-gist/G-BungE_LogAnalysis_Modified_Mk.4" target="_blank" rel="noreferrer">
-                Mk.4 Log CLI
+                Mk.4 Log Repo
               </a>
             </div>
           </div>
@@ -533,9 +599,9 @@
               <p>실시간 텔레메트리, 원격 다운로드, 기기 설정은 Monolith Control Hub에서 계속 사용할 수 있습니다.</p>
             </article>
             <article class="overview-card">
-              <span>Mk.4 CLI</span>
-              <h3>G-BungE 로그 분석 CLI</h3>
-              <p>깊은 주행 분석과 기존 Python 워크플로우는 G-BungE_LogAnalysis_Modified_Mk.4 레포를 참고합니다.</p>
+              <span>Mk.4 Log</span>
+              <h3>G-BungE 로그 레포</h3>
+              <p>깊은 주행 분석과 기존 로그 포맷 참고는 G-BungE_LogAnalysis_Modified_Mk.4 레포에서 이어갑니다.</p>
             </article>
             <article class="overview-card">
               <span>Local first</span>

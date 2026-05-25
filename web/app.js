@@ -9,6 +9,7 @@ const calcTitles = {
   brake: "Brake Bias",
   spring: "Spring Rate",
   motion: "Motion Ratio",
+  geometry: "Geometry Setup",
   chain: "Chain Drive",
 };
 
@@ -188,6 +189,197 @@ function updateMotion() {
 
   document.querySelector("#motion-ratio").textContent = format(motionRatio, 3);
   document.querySelector("#installation-ratio").textContent = format(installationRatio, 3);
+}
+
+function point2d(form, prefix) {
+  return {
+    x: numberValue(form, `${prefix}X`) / 1000,
+    y: numberValue(form, `${prefix}Y`) / 1000,
+  };
+}
+
+function midpoint(a, b) {
+  return {
+    x: (a.x + b.x) / 2,
+    y: (a.y + b.y) / 2,
+  };
+}
+
+function distance2d(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function signedDeg(radians, direction) {
+  const sign = direction === "right" ? -1 : 1;
+  return (radians * 180 * sign) / Math.PI;
+}
+
+function parseMassPoints(text) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#"))
+    .map((line) => {
+      const parts = line.split(/[,\t ]+/).filter(Boolean);
+      const offset = Number.isFinite(Number(parts[0])) ? 0 : 1;
+      const x = Number(parts[offset]);
+      const y = Number(parts[offset + 1]);
+      const z = Number(parts[offset + 2]);
+      const mass = Number(parts[offset + 3]);
+      return { x, y, z, mass };
+    })
+    .filter((point) => [point.x, point.y, point.z, point.mass].every(Number.isFinite) && point.mass > 0);
+}
+
+function calculateCg(points) {
+  const totalMass = points.reduce((sum, point) => sum + point.mass, 0);
+  if (totalMass <= 0) return { x: NaN, y: NaN, z: NaN, totalMass: NaN };
+  return {
+    x: points.reduce((sum, point) => sum + point.x * point.mass, 0) / totalMass,
+    y: points.reduce((sum, point) => sum + point.y * point.mass, 0) / totalMass,
+    z: points.reduce((sum, point) => sum + point.z * point.mass, 0) / totalMass,
+    totalMass,
+  };
+}
+
+function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius, direction }) {
+  const canvas = document.querySelector("#geo-diagram");
+  const context = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  const points = [fl, fr, rl, rr].filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+
+  context.clearRect(0, 0, width, height);
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, width, height);
+
+  if (points.length < 4 || !Number.isFinite(cg.x) || !Number.isFinite(cg.y)) return;
+
+  const xs = [...points.map((point) => point.x), cg.x];
+  const ys = [...points.map((point) => point.y), cg.y];
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const spanX = maxX - minX || 1;
+  const spanY = maxY - minY || 1;
+  const scale = Math.min((width - 160) / spanX, (height - 110) / spanY);
+  const toCanvas = (point) => ({
+    x: 80 + (point.x - minX) * scale,
+    y: height - 60 - (point.y - minY) * scale,
+  });
+  const cfl = toCanvas(fl);
+  const cfr = toCanvas(fr);
+  const crl = toCanvas(rl);
+  const crr = toCanvas(rr);
+  const ccg = toCanvas(cg);
+
+  context.strokeStyle = "#17202a";
+  context.lineWidth = 3;
+  context.beginPath();
+  context.moveTo(cfl.x, cfl.y);
+  context.lineTo(cfr.x, cfr.y);
+  context.lineTo(crr.x, crr.y);
+  context.lineTo(crl.x, crl.y);
+  context.closePath();
+  context.stroke();
+
+  context.fillStyle = "#f4f7fc";
+  [cfl, cfr, crl, crr].forEach((point) => {
+    context.beginPath();
+    context.arc(point.x, point.y, 12, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+  });
+
+  context.fillStyle = "#c84c45";
+  context.beginPath();
+  context.arc(ccg.x, ccg.y, 8, 0, Math.PI * 2);
+  context.fill();
+  context.strokeStyle = "#c84c45";
+  context.beginPath();
+  context.moveTo(ccg.x - 18, ccg.y);
+  context.lineTo(ccg.x + 18, ccg.y);
+  context.moveTo(ccg.x, ccg.y - 18);
+  context.lineTo(ccg.x, ccg.y + 18);
+  context.stroke();
+
+  context.fillStyle = "#17202a";
+  context.font = "700 13px system-ui, sans-serif";
+  context.textAlign = "center";
+  context.fillText("FL", cfl.x, cfl.y - 18);
+  context.fillText("FR", cfr.x, cfr.y - 18);
+  context.fillText("RL", crl.x, crl.y + 30);
+  context.fillText("RR", crr.x, crr.y + 30);
+  context.fillText("CG", ccg.x, ccg.y - 22);
+
+  context.fillStyle = "#627080";
+  context.font = "13px system-ui, sans-serif";
+  context.fillText(`${format(wheelbase, 3, " m")} wheelbase`, width / 2, 24);
+  context.fillText(`${direction} turn, R ${format(turnRadius, 1, " m")}`, width / 2, height - 20);
+}
+
+function updateGeometry() {
+  const form = document.querySelector('[data-form="geometry"]');
+  const fl = point2d(form, "fl");
+  const fr = point2d(form, "fr");
+  const rl = point2d(form, "rl");
+  const rr = point2d(form, "rr");
+  const frontCenter = midpoint(fl, fr);
+  const rearCenter = midpoint(rl, rr);
+  const wheelbase = distance2d(frontCenter, rearCenter);
+  const frontTrack = distance2d(fl, fr);
+  const rearTrack = distance2d(rl, rr);
+  const averageTrack = (frontTrack + rearTrack) / 2;
+  const direction = form.elements.turnDirection.value;
+  const turnRadius = numberValue(form, "turnRadius");
+  const speed = numberValue(form, "speedKph") / 3.6;
+  const yawArm = numberValue(form, "yawArm");
+  const massPoints = parseMassPoints(form.elements.massPoints.value);
+  const cg = calculateCg(massPoints);
+  const cgMeters = { x: cg.x / 1000, y: cg.y / 1000 };
+
+  const usableSteering = wheelbase > 0 && turnRadius > averageTrack / 2 && turnRadius > 0;
+  const centerAngle = usableSteering ? Math.atan(wheelbase / turnRadius) : NaN;
+  const innerAngle = usableSteering ? Math.atan(wheelbase / (turnRadius - averageTrack / 2)) : NaN;
+  const outerAngle = usableSteering ? Math.atan(wheelbase / (turnRadius + averageTrack / 2)) : NaN;
+  const yawRate = turnRadius > 0 ? speed / turnRadius : NaN;
+  const lateralAccel = turnRadius > 0 ? speed ** 2 / turnRadius / 9.80665 : NaN;
+  const corneringForce = Number.isFinite(cg.totalMass) && turnRadius > 0 ? (cg.totalMass * speed ** 2) / turnRadius : NaN;
+  const yawTorque = Number.isFinite(corneringForce) ? corneringForce * yawArm : NaN;
+  const displayRadius = turnRadius >= 30 ? 0 : turnRadius;
+
+  document.querySelector("#geo-cg-x").textContent = format(cg.x, 1, " mm");
+  document.querySelector("#geo-cg-y").textContent = format(cg.y, 1, " mm");
+  document.querySelector("#geo-cg-z").textContent = format(cg.z, 1, " mm");
+  document.querySelector("#geo-wheelbase").textContent = format(wheelbase, 3, " m");
+  document.querySelector("#geo-track").textContent = `${format(frontTrack, 3, " m")} / ${format(rearTrack, 3, " m")}`;
+  document.querySelector("#geo-mass").textContent = format(cg.totalMass, 1, " kg");
+  document.querySelector("#geo-steer").textContent = format(signedDeg(centerAngle, direction), 2, " deg");
+  document.querySelector("#geo-ackermann").textContent = `${format(signedDeg(innerAngle, direction), 2, " deg")} / ${format(
+    signedDeg(outerAngle, direction),
+    2,
+    " deg",
+  )}`;
+  document.querySelector("#geo-radius").textContent = format(displayRadius, 1, " m");
+  document.querySelector("#geo-latacc").textContent = format(lateralAccel, 2, " g");
+  document.querySelector("#geo-yaw-rate").textContent = format(yawRate, 3, " rad/s");
+  document.querySelector("#geo-yaw-torque").textContent = format(yawTorque, 1, " Nm");
+
+  const status = document.querySelector("#geo-status");
+  status.className = "chain-status";
+  if (massPoints.length === 0) {
+    status.classList.add("risk");
+    status.textContent = "질량점 형식을 확인하세요. 각 줄은 name, x, y, z, mass 또는 x, y, z, mass 형식입니다.";
+  } else if (!usableSteering) {
+    status.classList.add("check");
+    status.textContent = "회전반경이 너무 작거나 휠 좌표가 부족해서 Ackermann 조향각을 계산하기 어렵습니다.";
+  } else {
+    status.classList.add("good");
+    status.textContent = `${massPoints.length}개 질량점으로 CG를 계산했습니다. 30 m 이상 회전반경은 표시용 반경을 0으로 처리합니다.`;
+  }
+
+  drawGeometryDiagram({ fl, fr, rl, rr, cg: cgMeters, wheelbase, turnRadius, direction });
 }
 
 function pitchRadius(pitchMm, teeth) {
@@ -1039,6 +1231,7 @@ function updateAll() {
   updateBrake();
   updateSpring();
   updateMotion();
+  updateGeometry();
   updateChain();
 }
 
