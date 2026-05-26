@@ -28,7 +28,7 @@
 
         <section class="note-panel" aria-label="Input note">
           <h2>단위 기준</h2>
-          <p>길이는 mm 또는 m, 힘은 N, 압력은 bar 기준입니다. 결과는 입력할 때마다 바로 갱신됩니다.</p>
+          <p>길이 입력은 기본적으로 mm, 힘은 N, 압력은 bar 기준입니다. 결과는 입력할 때마다 바로 갱신됩니다.</p>
         </section>
       </aside>
 
@@ -75,7 +75,7 @@
                 </div>
                 <div>
                   <dt>소속</dt>
-                  <dd>GIST 기계공학과<br>25학년도 입학</dd>
+                  <dd>GIST MRE(기계로봇공학과)<br>25학년도 입학</dd>
                 </div>
                 <div>
                   <dt>프로젝트</dt>
@@ -376,8 +376,8 @@
                 <label><span>RR X</span><input name="rrX" type="number" step="1" value="0"><em>mm</em></label>
                 <label><span>RR Y</span><input name="rrY" type="number" step="1" value="-600"><em>mm</em></label>
                 <label><span>Vehicle speed</span><input name="speedKph" type="number" min="0" step="1" value="35"><em>km/h</em></label>
-                <label><span>Turn radius</span><input name="turnRadius" type="number" min="0" step="0.1" value="8"><em>m, centerline</em></label>
-                <label><span>Yaw moment arm</span><input name="yawArm" type="number" min="0" step="0.01" value="0.72"><em>m, CG to tire CP estimate</em></label>
+                <label><span>Turn radius</span><input name="turnRadius" type="number" min="0" step="10" value="8000"><em>mm, centerline</em></label>
+                <label><span>Yaw moment arm</span><input name="yawArm" type="number" min="0" step="1" value="720"><em>mm, CG to tire CP estimate</em></label>
               </div>
               <label class="textarea-label">
                 <span>Mass point coordinates</span>
@@ -423,9 +423,9 @@ frame,780,0,260,55</textarea>
                 <span>Steering ratio / Ackermann</span>
               </div>
               <div class="input-grid compact">
-                <label><span>Wheelbase</span><input name="wheelbase" type="number" min="0" step="0.001" value="1.600"><em>m</em></label>
-                <label><span>Front track</span><input name="frontTrack" type="number" min="0" step="0.001" value="1.240"><em>m</em></label>
-                <label><span>Target turn radius</span><input name="turnRadius" type="number" min="0" step="0.1" value="8"><em>m, centerline</em></label>
+                <label><span>Wheelbase</span><input name="wheelbase" type="number" min="0" step="1" value="1600"><em>mm</em></label>
+                <label><span>Front track</span><input name="frontTrack" type="number" min="0" step="1" value="1240"><em>mm</em></label>
+                <label><span>Target turn radius</span><input name="turnRadius" type="number" min="0" step="10" value="8000"><em>mm, centerline</em></label>
                 <label>
                   <span>Turn direction</span>
                   <select name="turnDirection">
@@ -484,11 +484,11 @@ frame,780,0,260,55</textarea>
                   </select>
                   <em>standard</em>
                 </label>
-                <label><span>Target center distance</span><input name="centerDistance" type="number" min="0" step="1" value="0"><em>mm</em></label>
-                <label><span>Motor sprocket</span><input name="motorTeeth" type="number" min="0" step="1" value="0"><em>teeth</em></label>
-                <label><span>Wheel sprocket</span><input name="wheelTeeth" type="number" min="0" step="1" value="0"><em>teeth</em></label>
-                <label><span>Axle adjust range</span><input name="adjustRange" type="number" min="0" step="1" value="0"><em>± mm</em></label>
-                <label><span>Minimum wrap target</span><input name="minWrap" type="number" min="0" max="180" step="1" value="0"><em>deg</em></label>
+                <label><span>Target center distance</span><input name="centerDistance" type="number" min="0" step="1" value="450"><em>mm</em></label>
+                <label><span>Motor sprocket</span><input name="motorTeeth" type="number" min="0" step="1" value="12"><em>teeth</em></label>
+                <label><span>Wheel sprocket</span><input name="wheelTeeth" type="number" min="0" step="1" value="60"><em>teeth</em></label>
+                <label><span>Axle adjust range</span><input name="adjustRange" type="number" min="0" step="1" value="15"><em>± mm</em></label>
+                <label><span>Minimum wrap target</span><input name="minWrap" type="number" min="0" max="180" step="1" value="120"><em>deg</em></label>
               </div>
             </form>
 

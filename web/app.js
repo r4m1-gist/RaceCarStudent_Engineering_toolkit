@@ -247,20 +247,20 @@ function calculateCg(points) {
   };
 }
 
-function ackermannPercent(innerDeg, outerDeg, trackM, wheelbaseM) {
+function ackermannPercent(innerDeg, outerDeg, trackMm, wheelbaseMm) {
   const inner = degToRad(Math.abs(innerDeg));
   const outer = degToRad(Math.abs(outerDeg));
-  if (inner <= 0 || outer <= 0 || trackM <= 0 || wheelbaseM <= 0) return NaN;
-  return ((1 / Math.tan(outer) - 1 / Math.tan(inner)) / (trackM / wheelbaseM)) * 100;
+  if (inner <= 0 || outer <= 0 || trackMm <= 0 || wheelbaseMm <= 0) return NaN;
+  return ((1 / Math.tan(outer) - 1 / Math.tan(inner)) / (trackMm / wheelbaseMm)) * 100;
 }
 
-function measuredTurnRadius(innerDeg, outerDeg, trackM, wheelbaseM) {
+function measuredTurnRadius(innerDeg, outerDeg, trackMm, wheelbaseMm) {
   const inner = degToRad(Math.abs(innerDeg));
   const outer = degToRad(Math.abs(outerDeg));
   const radii = [];
 
-  if (inner > 0 && wheelbaseM > 0) radii.push(wheelbaseM / Math.tan(inner) + trackM / 2);
-  if (outer > 0 && wheelbaseM > 0) radii.push(wheelbaseM / Math.tan(outer) - trackM / 2);
+  if (inner > 0 && wheelbaseMm > 0) radii.push(wheelbaseMm / Math.tan(inner) + trackMm / 2);
+  if (outer > 0 && wheelbaseMm > 0) radii.push(wheelbaseMm / Math.tan(outer) - trackMm / 2);
   if (radii.length === 0) return NaN;
   return radii.reduce((sum, radius) => sum + radius, 0) / radii.length;
 }
@@ -338,8 +338,8 @@ function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius }) {
 
   context.fillStyle = "#627080";
   context.font = "13px system-ui, sans-serif";
-  context.fillText(`${format(wheelbase, 3, " m")} wheelbase`, width / 2, 24);
-  context.fillText(`R ${format(turnRadius, 1, " m")} reference`, width / 2, height - 20);
+  context.fillText(`${format(wheelbase, 0, " mm")} wheelbase`, width / 2, 24);
+  context.fillText(`R ${format(turnRadius, 0, " mm")} reference`, width / 2, height - 20);
 }
 
 function updateGeometry() {
@@ -354,25 +354,25 @@ function updateGeometry() {
   const frontTrack = distance2d(fl, fr);
   const rearTrack = distance2d(rl, rr);
   const turnRadius = numberValue(form, "turnRadius");
+  const turnRadiusM = turnRadius / 1000;
   const speed = numberValue(form, "speedKph") / 3.6;
-  const yawArm = numberValue(form, "yawArm");
+  const yawArmM = numberValue(form, "yawArm") / 1000;
   const massPoints = parseMassPoints(form.elements.massPoints.value);
   const cg = calculateCg(massPoints);
-  const cgMeters = { x: cg.x / 1000, y: cg.y / 1000 };
 
-  const yawRate = turnRadius > 0 ? speed / turnRadius : NaN;
-  const lateralAccel = turnRadius > 0 ? speed ** 2 / turnRadius / 9.80665 : NaN;
-  const corneringForce = Number.isFinite(cg.totalMass) && turnRadius > 0 ? (cg.totalMass * speed ** 2) / turnRadius : NaN;
-  const yawTorque = Number.isFinite(corneringForce) ? corneringForce * yawArm : NaN;
-  const displayRadius = turnRadius >= 30 ? 0 : turnRadius;
+  const yawRate = turnRadiusM > 0 ? speed / turnRadiusM : NaN;
+  const lateralAccel = turnRadiusM > 0 ? speed ** 2 / turnRadiusM / 9.80665 : NaN;
+  const corneringForce = Number.isFinite(cg.totalMass) && turnRadiusM > 0 ? (cg.totalMass * speed ** 2) / turnRadiusM : NaN;
+  const yawTorque = Number.isFinite(corneringForce) ? corneringForce * yawArmM : NaN;
+  const displayRadius = turnRadius >= 30000 ? 0 : turnRadius;
 
   document.querySelector("#geo-cg-x").textContent = format(cg.x, 1, " mm");
   document.querySelector("#geo-cg-y").textContent = format(cg.y, 1, " mm");
   document.querySelector("#geo-cg-z").textContent = format(cg.z, 1, " mm");
-  document.querySelector("#geo-wheelbase").textContent = format(wheelbase, 3, " m");
-  document.querySelector("#geo-track").textContent = `${format(frontTrack, 3, " m")} / ${format(rearTrack, 3, " m")}`;
+  document.querySelector("#geo-wheelbase").textContent = format(wheelbase, 0, " mm");
+  document.querySelector("#geo-track").textContent = `${format(frontTrack, 0, " mm")} / ${format(rearTrack, 0, " mm")}`;
   document.querySelector("#geo-mass").textContent = format(cg.totalMass, 1, " kg");
-  document.querySelector("#geo-radius").textContent = format(displayRadius, 1, " m");
+  document.querySelector("#geo-radius").textContent = format(displayRadius, 0, " mm");
   document.querySelector("#geo-latacc").textContent = format(lateralAccel, 2, " g");
   document.querySelector("#geo-yaw-rate").textContent = format(yawRate, 3, " rad/s");
   document.querySelector("#geo-yaw-torque").textContent = format(yawTorque, 1, " Nm");
@@ -390,7 +390,7 @@ function updateGeometry() {
     status.textContent = `${massPoints.length}개 질량점으로 CG를 계산했습니다. 조향 관련 값은 Steering Setup 탭에서 따로 확인합니다.`;
   }
 
-  drawGeometryDiagram({ fl, fr, rl, rr, cg: cgMeters, wheelbase, turnRadius });
+  drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius });
 }
 
 function updateSteering() {
@@ -432,8 +432,8 @@ function updateSteering() {
   )}`;
   document.querySelector("#steer-ratio").textContent = format(steeringRatio, 2, ":1");
   document.querySelector("#steer-ackermann-percent").textContent = format(ackermann, 1, "%");
-  document.querySelector("#steer-measured-radius").textContent = format(measuredRadius, 2, " m");
-  document.querySelector("#steer-radius-error").textContent = format(radiusError, 2, " m");
+  document.querySelector("#steer-measured-radius").textContent = format(measuredRadius, 0, " mm");
+  document.querySelector("#steer-radius-error").textContent = format(radiusError, 0, " mm");
   document.querySelector("#steer-rack-ratio").textContent = format(rackPerSteeringDeg, 3, " mm/deg");
   document.querySelector("#steer-pinion-travel").textContent = format(pinionTravel, 1, " mm");
   document.querySelector("#steer-rack-steer").textContent = format(signedDeg(rackSteer, direction), 2, " deg");
@@ -452,7 +452,7 @@ function updateSteering() {
       ackermann,
       1,
       "%",
-    )}, 목표 반경 대비 ${format(radiusError, 2, " m")}입니다.`;
+    )}, 목표 반경 대비 ${format(radiusError, 0, " mm")}입니다.`;
   }
 }
 
