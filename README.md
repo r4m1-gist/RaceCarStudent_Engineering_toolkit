@@ -20,7 +20,7 @@ permission from the copyright holder.
 
 Open the current GitHub Pages build:
 
-https://r4m1-gist.github.io/RaceCarStudent_Engineering_toolkit/
+https://r4m1-gist.github.io/RaceCarStudent_Engineering_Toolkit/
 
 ## Project layout
 
