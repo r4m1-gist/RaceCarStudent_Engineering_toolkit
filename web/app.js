@@ -7,6 +7,7 @@ const viewTitles = {
 
 const calcTitles = {
   brake: "Brake Bias",
+  loadtransfer: "Load Transfer",
   spring: "Spring Rate",
   motion: "Motion Ratio",
   geometry: "Geometry Setup",
@@ -33,6 +34,7 @@ const analysisState = {
   numericColumns: [],
   fileName: "",
 };
+const checklistStorageKey = "g-bunge-engineering-toolkit-checklists";
 
 function numberValue(form, name) {
   const value = Number(form.elements[name].value);
@@ -93,6 +95,7 @@ function activateView(view) {
   const resetButton = document.querySelector("#reset-tool");
   resetButton.dataset.calc = activeCalc;
   resetButton.classList.toggle("is-hidden", view !== "calculators");
+  document.querySelector("#capture-tool").classList.toggle("is-hidden", view !== "calculators");
 }
 
 function activateCalc(calc) {
@@ -163,6 +166,55 @@ function updateBrake() {
   document.querySelector("#brake-decel").textContent = format(decelG, 2, " g");
   document.querySelector("#brake-front-bar").style.width = `${frontPercent}%`;
   document.querySelector("#brake-rear-bar").style.width = `${rearPercent}%`;
+}
+
+function updateLoadTransfer() {
+  const form = document.querySelector('[data-form="loadtransfer"]');
+  const mass = numberValue(form, "mass");
+  const wheelbase = numberValue(form, "wheelbase");
+  const cgHeight = numberValue(form, "cgHeight");
+  const frontWeight = Math.min(Math.max(numberValue(form, "frontWeight"), 0), 100) / 100;
+  const brakingG = numberValue(form, "brakingG");
+  const lateralG = numberValue(form, "lateralG");
+  const frontTrack = numberValue(form, "frontTrack");
+  const rearTrack = numberValue(form, "rearTrack");
+  const frontRollShare = Math.min(Math.max(numberValue(form, "frontRollShare"), 0), 100) / 100;
+  const chosenFrontBias = Math.min(Math.max(numberValue(form, "chosenFrontBias"), 0), 100);
+  const weight = mass * 9.80665;
+  const staticFront = weight * frontWeight;
+  const staticRear = weight - staticFront;
+  const brakeTransfer = wheelbase > 0 ? (mass * 9.80665 * brakingG * cgHeight) / wheelbase : NaN;
+  const dynamicFront = staticFront + brakeTransfer;
+  const dynamicRear = staticRear - brakeTransfer;
+  const recommendedBias = weight > 0 ? (dynamicFront / weight) * 100 : NaN;
+  const lateralForce = mass * 9.80665 * lateralG;
+  const frontLateral = frontTrack > 0 ? (lateralForce * frontRollShare * cgHeight) / frontTrack : NaN;
+  const rearLateral = rearTrack > 0 ? (lateralForce * (1 - frontRollShare) * cgHeight) / rearTrack : NaN;
+  const biasDelta = Number.isFinite(recommendedBias) ? chosenFrontBias - recommendedBias : NaN;
+
+  document.querySelector("#load-front-bias").textContent = format(recommendedBias, 1, "%");
+  document.querySelector("#load-brake-transfer").textContent = format(brakeTransfer, 0, " N");
+  document.querySelector("#load-static-load").textContent = `${format(staticFront, 0, " N")} / ${format(staticRear, 0, " N")}`;
+  document.querySelector("#load-dynamic-load").textContent = `${format(dynamicFront, 0, " N")} / ${format(dynamicRear, 0, " N")}`;
+  document.querySelector("#load-bias-offset").textContent = format(biasDelta, 1, "%p");
+  document.querySelector("#load-front-lateral").textContent = format(frontLateral, 0, " N");
+  document.querySelector("#load-rear-lateral").textContent = format(rearLateral, 0, " N");
+  document.querySelector("#load-roll-split").textContent = `${format(frontRollShare * 100, 0, "%")} / ${format(
+    (1 - frontRollShare) * 100,
+    0,
+    "%",
+  )}`;
+  document.querySelector("#load-goal").textContent = `제동 ${format(brakingG, 2, " g")}, 선회 ${format(lateralG, 2, " g")}를 목표로 설정`;
+  document.querySelector("#load-calc").textContent = `${format(brakeTransfer, 0, " N")} 하중이동으로 전륜 하중비 ${format(
+    recommendedBias,
+    1,
+    "%",
+  )} 산출`;
+  document.querySelector("#load-implementation").textContent = `실제 설계값은 전륜 ${format(chosenFrontBias, 1, "%")}, 목표 대비 ${format(
+    biasDelta,
+    1,
+    "%p",
+  )}`;
 }
 
 function updateSpring() {
@@ -297,7 +349,7 @@ function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius }) {
   const crr = toCanvas(rr);
   const ccg = toCanvas(cg);
 
-  context.strokeStyle = "#17202a";
+  context.strokeStyle = "#11181c";
   context.lineWidth = 3;
   context.beginPath();
   context.moveTo(cfl.x, cfl.y);
@@ -307,7 +359,7 @@ function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius }) {
   context.closePath();
   context.stroke();
 
-  context.fillStyle = "#f4f7fc";
+  context.fillStyle = "#f7f8fa";
   [cfl, cfr, crl, crr].forEach((point) => {
     context.beginPath();
     context.arc(point.x, point.y, 12, 0, Math.PI * 2);
@@ -315,11 +367,11 @@ function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius }) {
     context.stroke();
   });
 
-  context.fillStyle = "#c84c45";
+  context.fillStyle = "#e33128";
   context.beginPath();
   context.arc(ccg.x, ccg.y, 8, 0, Math.PI * 2);
   context.fill();
-  context.strokeStyle = "#c84c45";
+  context.strokeStyle = "#e33128";
   context.beginPath();
   context.moveTo(ccg.x - 18, ccg.y);
   context.lineTo(ccg.x + 18, ccg.y);
@@ -327,7 +379,7 @@ function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius }) {
   context.lineTo(ccg.x, ccg.y + 18);
   context.stroke();
 
-  context.fillStyle = "#17202a";
+  context.fillStyle = "#11181c";
   context.font = "700 13px system-ui, sans-serif";
   context.textAlign = "center";
   context.fillText("FL", cfl.x, cfl.y - 18);
@@ -336,7 +388,7 @@ function drawGeometryDiagram({ fl, fr, rl, rr, cg, wheelbase, turnRadius }) {
   context.fillText("RR", crr.x, crr.y + 30);
   context.fillText("CG", ccg.x, ccg.y - 22);
 
-  context.fillStyle = "#627080";
+  context.fillStyle = "#68727d";
   context.font = "13px system-ui, sans-serif";
   context.fillText(`${format(wheelbase, 0, " mm")} wheelbase`, width / 2, 24);
   context.fillText(`R ${format(turnRadius, 0, " mm")} reference`, width / 2, height - 20);
@@ -584,7 +636,7 @@ function drawChainDiagram(result) {
   const leftR = smallIsLeft ? smallR : largeR;
   const rightR = smallIsLeft ? largeR : smallR;
 
-  context.strokeStyle = "#1f8a83";
+  context.strokeStyle = "#e33128";
   context.lineWidth = 16;
   context.lineCap = "round";
   context.beginPath();
@@ -595,8 +647,8 @@ function drawChainDiagram(result) {
   context.stroke();
 
   context.lineWidth = 2;
-  context.strokeStyle = "#17202a";
-  context.fillStyle = "#f4f7fc";
+  context.strokeStyle = "#11181c";
+  context.fillStyle = "#f7f8fa";
   context.beginPath();
   context.arc(leftX, y, leftR, 0, Math.PI * 2);
   context.fill();
@@ -607,14 +659,14 @@ function drawChainDiagram(result) {
   context.fill();
   context.stroke();
 
-  context.fillStyle = "#17202a";
+  context.fillStyle = "#11181c";
   context.font = "700 16px system-ui, sans-serif";
   context.textAlign = "center";
   context.fillText(`${smallIsLeft ? result.smallTeeth : result.largeTeeth}T`, leftX, y + 5);
   context.fillText(`${smallIsLeft ? result.largeTeeth : result.smallTeeth}T`, rightX, y + 5);
 
   context.font = "13px system-ui, sans-serif";
-  context.fillStyle = "#627080";
+  context.fillStyle = "#68727d";
   context.fillText(`${format(center, 1, " mm")} center`, (leftX + rightX) / 2, height - 22);
   context.fillText(`${result.chain.pitchMm} mm pitch`, (leftX + rightX) / 2, 24);
 }
@@ -1122,7 +1174,7 @@ function drawEmptyAnalysisChart(message = "Load a log file") {
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.fillStyle = "#ffffff";
   context.fillRect(0, 0, canvas.width, canvas.height);
-  context.fillStyle = "#627080";
+  context.fillStyle = "#68727d";
   context.font = "700 18px system-ui, sans-serif";
   context.textAlign = "center";
   context.fillText(message, canvas.width / 2, canvas.height / 2);
@@ -1174,7 +1226,7 @@ function drawAnalysisChart() {
   }
   context.stroke();
 
-  context.strokeStyle = "#17202a";
+  context.strokeStyle = "#11181c";
   context.lineWidth = 1.5;
   context.beginPath();
   context.moveTo(padding.left, padding.top);
@@ -1182,7 +1234,7 @@ function drawAnalysisChart() {
   context.lineTo(padding.left + plotWidth, padding.top + plotHeight);
   context.stroke();
 
-  context.strokeStyle = "#1f8a83";
+  context.strokeStyle = "#e33128";
   context.lineWidth = 3;
   context.beginPath();
   points.forEach((point, index) => {
@@ -1193,7 +1245,7 @@ function drawAnalysisChart() {
   });
   context.stroke();
 
-  context.fillStyle = "#17202a";
+  context.fillStyle = "#11181c";
   context.font = "13px system-ui, sans-serif";
   context.textAlign = "center";
   context.fillText(xColumn, padding.left + plotWidth / 2, canvas.height - 16);
@@ -1204,7 +1256,7 @@ function drawAnalysisChart() {
   context.restore();
 
   context.textAlign = "right";
-  context.fillStyle = "#627080";
+  context.fillStyle = "#68727d";
   context.fillText(compactNumber(maxY), padding.left - 10, padding.top + 5);
   context.fillText(compactNumber(minY), padding.left - 10, padding.top + plotHeight + 4);
   context.textAlign = "center";
@@ -1301,8 +1353,63 @@ function initAnalysisViewer() {
   drawEmptyAnalysisChart();
 }
 
+function readChecklistState() {
+  try {
+    return JSON.parse(localStorage.getItem(checklistStorageKey)) || { items: {}, notes: {} };
+  } catch {
+    return { items: {}, notes: {} };
+  }
+}
+
+function writeChecklistState() {
+  const state = { items: {}, notes: {} };
+  document.querySelectorAll("[data-checklist-item]").forEach((item) => {
+    state.items[item.dataset.checklistItem] = item.checked;
+  });
+  document.querySelectorAll("[data-checklist-note]").forEach((note) => {
+    state.notes[note.dataset.checklistNote] = note.value;
+  });
+
+  try {
+    localStorage.setItem(checklistStorageKey, JSON.stringify(state));
+  } catch {
+    // Browser storage can be unavailable in private or restricted contexts.
+  }
+}
+
+function updateChecklistProgress() {
+  const items = Array.from(document.querySelectorAll("[data-checklist-item]"));
+  const completed = items.filter((item) => item.checked).length;
+  document.querySelector("#checklist-progress").textContent = `${completed} / ${items.length}`;
+}
+
+function initChecklists() {
+  const state = readChecklistState();
+  document.querySelectorAll("[data-checklist-item]").forEach((item) => {
+    item.checked = Boolean(state.items?.[item.dataset.checklistItem]);
+    item.addEventListener("change", () => {
+      updateChecklistProgress();
+      writeChecklistState();
+    });
+  });
+  document.querySelectorAll("[data-checklist-note]").forEach((note) => {
+    note.value = state.notes?.[note.dataset.checklistNote] || "";
+    note.addEventListener("input", writeChecklistState);
+  });
+  updateChecklistProgress();
+}
+
+function initCaptureMode() {
+  const button = document.querySelector("#capture-tool");
+  button.addEventListener("click", () => {
+    document.body.classList.toggle("capture-mode");
+    button.textContent = document.body.classList.contains("capture-mode") ? "Exit Capture" : "Capture View";
+  });
+}
+
 function updateAll() {
   updateBrake();
+  updateLoadTransfer();
   updateSpring();
   updateMotion();
   updateGeometry();
@@ -1334,5 +1441,7 @@ document.querySelectorAll("input, select, textarea").forEach((field) => {
 saveDefaults();
 activateCalc("brake");
 activateView("intro");
+initChecklists();
+initCaptureMode();
 initAnalysisViewer();
 updateAll();

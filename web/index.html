@@ -38,7 +38,10 @@
             <p class="eyebrow">Race car student workflow</p>
             <h2 id="tool-title">Intro</h2>
           </div>
-          <button class="ghost-button" id="reset-tool" type="button" title="현재 계산기 기본값 복원">Reset</button>
+          <div class="header-actions">
+            <button class="ghost-button" id="capture-tool" type="button" title="보고서 캡쳐용 보기">Capture View</button>
+            <button class="ghost-button" id="reset-tool" type="button" title="현재 계산기 기본값 복원">Reset</button>
+          </div>
         </header>
 
         <section class="view-section active" data-view-panel="intro" aria-labelledby="tool-title">
@@ -96,6 +99,7 @@
         <section class="view-section" data-view-panel="calculators" aria-labelledby="tool-title">
           <nav class="calc-tabs" aria-label="Calculator tabs">
             <button class="calc-tab active" type="button" data-calc="brake">Brake Bias</button>
+            <button class="calc-tab" type="button" data-calc="loadtransfer">Load Transfer</button>
             <button class="calc-tab" type="button" data-calc="spring">Spring Rate</button>
             <button class="calc-tab" type="button" data-calc="motion">Motion Ratio</button>
             <button class="calc-tab" type="button" data-calc="geometry">Geometry Setup</button>
@@ -270,6 +274,73 @@
               </div>
               <p class="formula">
                 brake torque = line pressure × piston area × clamp multiplier × disc count × effective radius × pad μ. Decel excludes tire grip and load transfer limits.
+              </p>
+            </div>
+          </div>
+        </section>
+
+          <section class="calc-panel" data-calc-panel="loadtransfer" aria-label="Load transfer calculator">
+          <div class="wide-layout capture-layout">
+            <form class="input-card" data-form="loadtransfer">
+              <div class="section-heading">
+                <h3>입력값</h3>
+                <span>하중이동 / 제동 바이어스</span>
+              </div>
+              <div class="input-grid compact">
+                <label><span>Vehicle mass</span><input name="mass" type="number" min="0" step="1" value="250"><em>kg with driver</em></label>
+                <label><span>Wheelbase</span><input name="wheelbase" type="number" min="0" step="1" value="1600"><em>mm</em></label>
+                <label><span>CG height</span><input name="cgHeight" type="number" min="0" step="1" value="320"><em>mm</em></label>
+                <label><span>Static front weight</span><input name="frontWeight" type="number" min="0" max="100" step="0.1" value="45"><em>%</em></label>
+                <label><span>Target braking decel</span><input name="brakingG" type="number" min="0" step="0.05" value="1.1"><em>g</em></label>
+                <label><span>Target lateral accel</span><input name="lateralG" type="number" min="0" step="0.05" value="0.9"><em>g</em></label>
+                <label><span>Front track</span><input name="frontTrack" type="number" min="0" step="1" value="1240"><em>mm</em></label>
+                <label><span>Rear track</span><input name="rearTrack" type="number" min="0" step="1" value="1200"><em>mm</em></label>
+                <label><span>Front roll stiffness share</span><input name="frontRollShare" type="number" min="0" max="100" step="1" value="52"><em>%</em></label>
+                <label><span>Chosen front bias</span><input name="chosenFrontBias" type="number" min="0" max="100" step="0.1" value="60"><em>구현 전륜 비율</em></label>
+              </div>
+            </form>
+
+            <div class="result-card capture-card">
+              <div class="section-heading">
+                <h3>결과</h3>
+                <span>캡쳐용 설계 근거</span>
+              </div>
+              <div class="capture-hero">
+                <div>
+                  <span>Recommended front bias</span>
+                  <strong id="load-front-bias">-</strong>
+                  <em>동적 하중 기준 목표값</em>
+                </div>
+                <div>
+                  <span>Braking load transfer</span>
+                  <strong id="load-brake-transfer">-</strong>
+                  <em>제동 시 종방향 하중이동</em>
+                </div>
+              </div>
+              <div class="report-flow" aria-label="Design calculation flow">
+                <article>
+                  <span>Goal</span>
+                  <strong id="load-goal">-</strong>
+                </article>
+                <article>
+                  <span>Calculation</span>
+                  <strong id="load-calc">-</strong>
+                </article>
+                <article>
+                  <span>Implementation</span>
+                  <strong id="load-implementation">-</strong>
+                </article>
+              </div>
+              <div class="metric-grid three">
+                <article><span>Static axle load F/R</span><strong id="load-static-load">-</strong></article>
+                <article><span>Dynamic axle load F/R</span><strong id="load-dynamic-load">-</strong></article>
+                <article><span>Bias offset</span><strong id="load-bias-offset">-</strong></article>
+                <article><span>Front lateral transfer</span><strong id="load-front-lateral">-</strong></article>
+                <article><span>Rear lateral transfer</span><strong id="load-rear-lateral">-</strong></article>
+                <article><span>Roll stiffness split</span><strong id="load-roll-split">-</strong></article>
+              </div>
+              <p class="formula">
+                Longitudinal load transfer = mass × decel × CG height / wheelbase. 횡하중이동은 roll stiffness share와 track width를 기준으로 전/후륜에 배분합니다.
               </p>
             </div>
           </div>
@@ -533,22 +604,63 @@ frame,780,0,260,55</textarea>
         </section>
 
         <section class="view-section" data-view-panel="checklists" aria-labelledby="tool-title">
-          <div class="overview-grid">
-            <article class="overview-card">
-              <span>Design Review</span>
-              <h3>설계 검토 체크</h3>
-              <p>요구사항, 하중 조건, 안전율, 제조 계획을 한 번에 확인하는 리뷰 흐름입니다.</p>
-            </article>
-            <article class="overview-card">
-              <span>Manufacturing</span>
-              <h3>제작 전후 체크</h3>
-              <p>도면 릴리즈, 소재 확인, 치수 검사, 조립 핏 체크처럼 제작 중 빠지기 쉬운 항목을 정리합니다.</p>
-            </article>
-            <article class="overview-card">
-              <span>Failure Report</span>
-              <h3>고장 기록</h3>
-              <p>무엇이 언제 왜 고장났는지, 임시 조치와 재발 방지 액션을 남기는 템플릿입니다.</p>
-            </article>
+          <div class="checklist-hero">
+            <div>
+              <p class="intro-kicker">Saved checklist</p>
+              <h3>설계/제작 리뷰 상태판</h3>
+              <p>체크 상태와 메모는 이 브라우저에 자동 저장됩니다. 새로고침해도 그대로 남습니다.</p>
+            </div>
+            <div class="checklist-progress">
+              <span>Completed</span>
+              <strong id="checklist-progress">0 / 0</strong>
+            </div>
+          </div>
+
+          <div class="checklist-board">
+            <section class="checklist-card">
+              <div class="section-heading">
+                <h3>Design Review</h3>
+                <span>설계 근거 확인</span>
+              </div>
+              <label class="check-row"><input type="checkbox" data-checklist-item="design-goal"><span>설계 목표와 요구사항을 수치로 정의했다.</span></label>
+              <label class="check-row"><input type="checkbox" data-checklist-item="design-load"><span>하중 조건과 계산 가정을 정리했다.</span></label>
+              <label class="check-row"><input type="checkbox" data-checklist-item="design-safety"><span>안전율 또는 판단 기준을 기록했다.</span></label>
+              <label class="check-row"><input type="checkbox" data-checklist-item="design-report"><span>보고서에 넣을 캡쳐/표/결론을 준비했다.</span></label>
+              <label class="textarea-label checklist-note">
+                <span>Review note</span>
+                <textarea data-checklist-note="design" rows="4" placeholder="검토 중 발견한 수정사항"></textarea>
+              </label>
+            </section>
+
+            <section class="checklist-card">
+              <div class="section-heading">
+                <h3>Manufacturing</h3>
+                <span>제작 전후 확인</span>
+              </div>
+              <label class="check-row"><input type="checkbox" data-checklist-item="mfg-drawing"><span>도면 버전과 릴리즈 날짜를 확인했다.</span></label>
+              <label class="check-row"><input type="checkbox" data-checklist-item="mfg-material"><span>소재, 공차, 후처리 조건을 확인했다.</span></label>
+              <label class="check-row"><input type="checkbox" data-checklist-item="mfg-fit"><span>조립 간섭과 체결 접근성을 확인했다.</span></label>
+              <label class="check-row"><input type="checkbox" data-checklist-item="mfg-inspection"><span>제작 후 치수 검사 항목을 기록했다.</span></label>
+              <label class="textarea-label checklist-note">
+                <span>Manufacturing note</span>
+                <textarea data-checklist-note="manufacturing" rows="4" placeholder="제작/구매/가공 메모"></textarea>
+              </label>
+            </section>
+
+            <section class="checklist-card">
+              <div class="section-heading">
+                <h3>Failure Report</h3>
+                <span>문제 기록</span>
+              </div>
+              <label class="check-row"><input type="checkbox" data-checklist-item="failure-symptom"><span>문제 발생 조건과 증상을 기록했다.</span></label>
+              <label class="check-row"><input type="checkbox" data-checklist-item="failure-cause"><span>원인 가설과 확인 방법을 정리했다.</span></label>
+              <label class="check-row"><input type="checkbox" data-checklist-item="failure-action"><span>임시 조치와 영구 수정안을 구분했다.</span></label>
+              <label class="check-row"><input type="checkbox" data-checklist-item="failure-prevent"><span>재발 방지 체크 항목을 추가했다.</span></label>
+              <label class="textarea-label checklist-note">
+                <span>Failure note</span>
+                <textarea data-checklist-note="failure" rows="4" placeholder="고장/수정 이력"></textarea>
+              </label>
+            </section>
           </div>
         </section>
 
