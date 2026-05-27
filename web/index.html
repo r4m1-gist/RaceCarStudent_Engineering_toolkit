@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RaceCarStudent Engineering Toolkit</title>
-    <link rel="stylesheet" href="styles.css?v=1.0.2">
+    <link rel="stylesheet" href="styles.css?v=1.0.2-labels">
   </head>
   <body>
     <main class="app-shell">
@@ -111,22 +111,22 @@
           <div class="calculator-layout">
             <form class="input-card" data-form="brake">
               <div class="section-heading">
-                <h3>입력값</h3>
+                <h3>Input</h3>
                 <span>캘리퍼와 디스크 치수</span>
               </div>
               <div class="input-grid">
                 <label>
-                  <span>Front piston area</span>
+                  <span>Front piston area <small>전륜 피스톤 면적</small></span>
                   <input name="frontArea" type="number" min="0" step="1" value="0">
                   <em>mm² per caliper</em>
                 </label>
                 <label>
-                  <span>Rear piston area</span>
+                  <span>Rear piston area <small>후륜 피스톤 면적</small></span>
                   <input name="rearArea" type="number" min="0" step="1" value="0">
                   <em>mm² per caliper</em>
                 </label>
                 <label>
-                  <span>Front caliper type</span>
+                  <span>Front caliper type <small>전륜 캘리퍼 형식</small></span>
                   <select name="frontCaliperMultiplier">
                     <option value="2">Floating / single acting</option>
                     <option value="1">Fixed, total piston area</option>
@@ -135,7 +135,7 @@
                   <em>clamp basis</em>
                 </label>
                 <label>
-                  <span>Rear caliper type</span>
+                  <span>Rear caliper type <small>후륜 캘리퍼 형식</small></span>
                   <select name="rearCaliperMultiplier">
                     <option value="2">Floating / single acting</option>
                     <option value="1" selected>Fixed, total piston area</option>
@@ -144,77 +144,77 @@
                   <em>clamp basis</em>
                 </label>
                 <label>
-                  <span>Front discs</span>
+                  <span>Front discs <small>전륜 디스크 수</small></span>
                   <input name="frontDiscs" type="number" min="0" step="1" value="0">
                   <em>count</em>
                 </label>
                 <label>
-                  <span>Rear discs</span>
+                  <span>Rear discs <small>후륜 디스크 수</small></span>
                   <input name="rearDiscs" type="number" min="0" step="1" value="0">
                   <em>count</em>
                 </label>
                 <label>
-                  <span>Front effective radius</span>
+                  <span>Front effective radius <small>전륜 유효 반지름</small></span>
                   <input name="frontRadius" type="number" min="0" step="1" value="0">
                   <em>mm</em>
                 </label>
                 <label>
-                  <span>Rear effective radius</span>
+                  <span>Rear effective radius <small>후륜 유효 반지름</small></span>
                   <input name="rearRadius" type="number" min="0" step="1" value="0">
                   <em>mm</em>
                 </label>
                 <label>
-                  <span>Front pad μ</span>
+                  <span>Front pad μ <small>전륜 패드 마찰계수</small></span>
                   <input name="frontMu" type="number" min="0" step="0.01" value="0">
                   <em>-</em>
                 </label>
                 <label>
-                  <span>Rear pad μ</span>
+                  <span>Rear pad μ <small>후륜 패드 마찰계수</small></span>
                   <input name="rearMu" type="number" min="0" step="0.01" value="0">
                   <em>-</em>
                 </label>
                 <label>
-                  <span>Front pressure</span>
+                  <span>Front pressure <small>전륜 유압</small></span>
                   <input name="frontPressure" type="number" min="0" step="0.1" value="0">
                   <em>bar</em>
                 </label>
                 <label>
-                  <span>Rear pressure</span>
+                  <span>Rear pressure <small>후륜 유압</small></span>
                   <input name="rearPressure" type="number" min="0" step="0.1" value="0">
                   <em>bar</em>
                 </label>
                 <label>
-                  <span>Pedal force</span>
+                  <span>Pedal force <small>페달 입력힘</small></span>
                   <input name="pedalForce" type="number" min="0" step="1" value="0">
                   <em>N</em>
                 </label>
                 <label>
-                  <span>Pedal ratio</span>
+                  <span>Pedal ratio <small>페달비</small></span>
                   <input name="pedalRatio" type="number" min="0" step="0.1" value="0">
                   <em>-</em>
                 </label>
                 <label>
-                  <span>Front master bore</span>
+                  <span>Front master bore <small>전륜 마스터 보어</small></span>
                   <input name="frontMasterBore" type="number" min="0" step="0.1" value="0">
                   <em>mm</em>
                 </label>
                 <label>
-                  <span>Rear master bore</span>
+                  <span>Rear master bore <small>후륜 마스터 보어</small></span>
                   <input name="rearMasterBore" type="number" min="0" step="0.1" value="0">
                   <em>mm</em>
                 </label>
                 <label>
-                  <span>Balance bar front</span>
+                  <span>Balance bar front <small>전륜 배분</small></span>
                   <input name="frontBalance" type="number" min="0" max="100" step="1" value="50">
                   <em>% pedal load</em>
                 </label>
                 <label>
-                  <span>Tire loaded radius</span>
+                  <span>Tire loaded radius <small>타이어 동반경</small></span>
                   <input name="tireRadius" type="number" min="0" step="1" value="0">
                   <em>mm</em>
                 </label>
                 <label>
-                  <span>Vehicle mass</span>
+                  <span>Vehicle mass <small>차량 질량</small></span>
                   <input name="vehicleMass" type="number" min="0" step="1" value="0">
                   <em>kg with driver</em>
                 </label>
@@ -223,7 +223,7 @@
 
             <div class="result-card">
               <div class="section-heading">
-                <h3>결과</h3>
+                <h3>Result</h3>
                 <span>정적 토크 비율</span>
               </div>
               <div class="bias-meter" aria-label="Brake bias meter">
@@ -232,43 +232,43 @@
               </div>
               <div class="metric-grid three">
                 <article>
-                  <span>Front bias</span>
+                  <span>Front bias <small>전륜 비율</small></span>
                   <strong id="brake-front">-</strong>
                 </article>
                 <article>
-                  <span>Rear bias</span>
+                  <span>Rear bias <small>후륜 비율</small></span>
                   <strong id="brake-rear">-</strong>
                 </article>
                 <article>
-                  <span>Front torque factor</span>
+                  <span>Front torque factor <small>전륜 토크 계수</small></span>
                   <strong id="brake-front-factor">-</strong>
                 </article>
                 <article>
-                  <span>Rear torque factor</span>
+                  <span>Rear torque factor <small>후륜 토크 계수</small></span>
                   <strong id="brake-rear-factor">-</strong>
                 </article>
                 <article>
-                  <span>Front line pressure</span>
+                  <span>Front line pressure <small>전륜 라인압</small></span>
                   <strong id="brake-front-pressure">-</strong>
                 </article>
                 <article>
-                  <span>Rear line pressure</span>
+                  <span>Rear line pressure <small>후륜 라인압</small></span>
                   <strong id="brake-rear-pressure">-</strong>
                 </article>
                 <article>
-                  <span>Front brake torque</span>
+                  <span>Front brake torque <small>전륜 제동토크</small></span>
                   <strong id="brake-front-torque">-</strong>
                 </article>
                 <article>
-                  <span>Rear brake torque</span>
+                  <span>Rear brake torque <small>후륜 제동토크</small></span>
                   <strong id="brake-rear-torque">-</strong>
                 </article>
                 <article>
-                  <span>Total brake force</span>
+                  <span>Total brake force <small>총 제동력</small></span>
                   <strong id="brake-total-force">-</strong>
                 </article>
                 <article>
-                  <span>Hydraulic decel</span>
+                  <span>Hydraulic decel <small>유압 기준 감속도</small></span>
                   <strong id="brake-decel">-</strong>
                 </article>
               </div>
@@ -283,61 +283,61 @@
           <div class="wide-layout capture-layout">
             <form class="input-card" data-form="loadtransfer">
               <div class="section-heading">
-                <h3>입력값</h3>
+                <h3>Input</h3>
                 <span>하중이동 / 제동 바이어스</span>
               </div>
               <div class="input-grid compact">
-                <label><span>Vehicle mass</span><input name="mass" type="number" min="0" step="1" value="250"><em>kg with driver</em></label>
-                <label><span>Wheelbase</span><input name="wheelbase" type="number" min="0" step="1" value="1600"><em>mm</em></label>
-                <label><span>CG height</span><input name="cgHeight" type="number" min="0" step="1" value="320"><em>mm</em></label>
-                <label><span>Static front weight</span><input name="frontWeight" type="number" min="0" max="100" step="0.1" value="45"><em>%</em></label>
-                <label><span>Target braking decel</span><input name="brakingG" type="number" min="0" step="0.05" value="1.1"><em>g</em></label>
-                <label><span>Target lateral accel</span><input name="lateralG" type="number" min="0" step="0.05" value="0.9"><em>g</em></label>
-                <label><span>Front track</span><input name="frontTrack" type="number" min="0" step="1" value="1240"><em>mm</em></label>
-                <label><span>Rear track</span><input name="rearTrack" type="number" min="0" step="1" value="1200"><em>mm</em></label>
-                <label><span>Front roll stiffness share</span><input name="frontRollShare" type="number" min="0" max="100" step="1" value="52"><em>%</em></label>
-                <label><span>Chosen front bias</span><input name="chosenFrontBias" type="number" min="0" max="100" step="0.1" value="60"><em>구현 전륜 비율</em></label>
+                <label><span>Vehicle mass <small>차량 질량</small></span><input name="mass" type="number" min="0" step="1" value="250"><em>kg with driver</em></label>
+                <label><span>Wheelbase <small>휠베이스</small></span><input name="wheelbase" type="number" min="0" step="1" value="1600"><em>mm</em></label>
+                <label><span>CG height <small>무게중심 높이</small></span><input name="cgHeight" type="number" min="0" step="1" value="320"><em>mm</em></label>
+                <label><span>Static front weight <small>정적 전륜 하중비</small></span><input name="frontWeight" type="number" min="0" max="100" step="0.1" value="45"><em>%</em></label>
+                <label><span>Target braking decel <small>목표 제동 감속도</small></span><input name="brakingG" type="number" min="0" step="0.05" value="1.1"><em>g</em></label>
+                <label><span>Target lateral accel <small>목표 횡가속도</small></span><input name="lateralG" type="number" min="0" step="0.05" value="0.9"><em>g</em></label>
+                <label><span>Front track <small>전륜 윤거</small></span><input name="frontTrack" type="number" min="0" step="1" value="1240"><em>mm</em></label>
+                <label><span>Rear track <small>후륜 윤거</small></span><input name="rearTrack" type="number" min="0" step="1" value="1200"><em>mm</em></label>
+                <label><span>Front roll stiffness share <small>전륜 롤 강성 배분</small></span><input name="frontRollShare" type="number" min="0" max="100" step="1" value="52"><em>%</em></label>
+                <label><span>Chosen front bias <small>구현 전륜 비율</small></span><input name="chosenFrontBias" type="number" min="0" max="100" step="0.1" value="60"><em>%</em></label>
               </div>
             </form>
 
             <div class="result-card capture-card">
               <div class="section-heading">
-                <h3>결과</h3>
+                <h3>Result</h3>
                 <span>캡쳐용 설계 근거</span>
               </div>
               <div class="capture-hero">
                 <div>
-                  <span>Recommended front bias</span>
+                  <span>Recommended front bias <small>권장 전륜 비율</small></span>
                   <strong id="load-front-bias">-</strong>
                   <em>동적 하중 기준 목표값</em>
                 </div>
                 <div>
-                  <span>Braking load transfer</span>
+                  <span>Braking load transfer <small>제동 하중이동</small></span>
                   <strong id="load-brake-transfer">-</strong>
                   <em>제동 시 종방향 하중이동</em>
                 </div>
               </div>
               <div class="report-flow" aria-label="Design calculation flow">
                 <article>
-                  <span>Goal</span>
+                  <span>Goal <small>목표</small></span>
                   <strong id="load-goal">-</strong>
                 </article>
                 <article>
-                  <span>Calculation</span>
+                  <span>Calculation <small>계산</small></span>
                   <strong id="load-calc">-</strong>
                 </article>
                 <article>
-                  <span>Implementation</span>
+                  <span>Implementation <small>구현</small></span>
                   <strong id="load-implementation">-</strong>
                 </article>
               </div>
               <div class="metric-grid three">
-                <article><span>Static axle load F/R</span><strong id="load-static-load">-</strong></article>
-                <article><span>Dynamic axle load F/R</span><strong id="load-dynamic-load">-</strong></article>
-                <article><span>Bias offset</span><strong id="load-bias-offset">-</strong></article>
-                <article><span>Front lateral transfer</span><strong id="load-front-lateral">-</strong></article>
-                <article><span>Rear lateral transfer</span><strong id="load-rear-lateral">-</strong></article>
-                <article><span>Roll stiffness split</span><strong id="load-roll-split">-</strong></article>
+                <article><span>Static axle load F/R <small>정적 전/후륜 하중</small></span><strong id="load-static-load">-</strong></article>
+                <article><span>Dynamic axle load F/R <small>동적 전/후륜 하중</small></span><strong id="load-dynamic-load">-</strong></article>
+                <article><span>Bias offset <small>목표 대비 차이</small></span><strong id="load-bias-offset">-</strong></article>
+                <article><span>Front lateral transfer <small>전륜 횡하중이동</small></span><strong id="load-front-lateral">-</strong></article>
+                <article><span>Rear lateral transfer <small>후륜 횡하중이동</small></span><strong id="load-rear-lateral">-</strong></article>
+                <article><span>Roll stiffness split <small>롤 강성 배분</small></span><strong id="load-roll-split">-</strong></article>
               </div>
               <p class="formula">
                 Longitudinal load transfer = mass × decel × CG height / wheelbase. 횡하중이동은 roll stiffness share와 track width를 기준으로 전/후륜에 배분합니다.
@@ -350,22 +350,22 @@
           <div class="calculator-layout">
             <form class="input-card" data-form="spring">
               <div class="section-heading">
-                <h3>입력값</h3>
+                <h3>Input</h3>
                 <span>타깃 휠레이트 역산</span>
               </div>
               <div class="input-grid">
                 <label>
-                  <span>Target wheel rate</span>
+                  <span>Target wheel rate <small>목표 휠레이트</small></span>
                   <input name="wheelRate" type="number" min="0" step="0.1" value="0">
                   <em>N/mm</em>
                 </label>
                 <label>
-                  <span>Motion ratio</span>
+                  <span>Motion ratio <small>모션비</small></span>
                   <input name="motionRatio" type="number" min="0" step="0.01" value="0">
                   <em>spring/wheel</em>
                 </label>
                 <label>
-                  <span>Tire rate</span>
+                  <span>Tire rate <small>타이어 강성</small></span>
                   <input name="tireRate" type="number" min="0" step="1" value="0">
                   <em>N/mm</em>
                 </label>
@@ -373,16 +373,16 @@
             </form>
             <div class="result-card">
               <div class="section-heading">
-                <h3>결과</h3>
+                <h3>Result</h3>
                 <span>스프링 선택 기준</span>
               </div>
               <div class="metric-grid two">
                 <article>
-                  <span>Required spring rate</span>
+                  <span>Required spring rate <small>필요 스프링 레이트</small></span>
                   <strong id="spring-rate">-</strong>
                 </article>
                 <article>
-                  <span>Suspension wheel rate</span>
+                  <span>Suspension wheel rate <small>서스펜션 휠레이트</small></span>
                   <strong id="suspension-wheel-rate">-</strong>
                 </article>
               </div>
@@ -395,17 +395,17 @@
           <div class="calculator-layout">
             <form class="input-card" data-form="motion">
               <div class="section-heading">
-                <h3>입력값</h3>
+                <h3>Input</h3>
                 <span>실측 스트로크 기반</span>
               </div>
               <div class="input-grid">
                 <label>
-                  <span>Wheel travel</span>
+                  <span>Wheel travel <small>휠 스트로크</small></span>
                   <input name="wheelTravel" type="number" min="0" step="0.1" value="0">
                   <em>mm</em>
                 </label>
                 <label>
-                  <span>Spring travel</span>
+                  <span>Spring travel <small>스프링 스트로크</small></span>
                   <input name="springTravel" type="number" min="0" step="0.1" value="0">
                   <em>mm</em>
                 </label>
@@ -413,16 +413,16 @@
             </form>
             <div class="result-card">
               <div class="section-heading">
-                <h3>결과</h3>
+                <h3>Result</h3>
                 <span>댐퍼/스프링 레버비</span>
               </div>
               <div class="metric-grid two">
                 <article>
-                  <span>Motion ratio</span>
+                  <span>Motion ratio <small>모션비</small></span>
                   <strong id="motion-ratio">-</strong>
                 </article>
                 <article>
-                  <span>Installation ratio</span>
+                  <span>Installation ratio <small>설치비</small></span>
                   <strong id="installation-ratio">-</strong>
                 </article>
               </div>
@@ -434,24 +434,24 @@
           <div class="wide-layout">
             <form class="input-card" data-form="geometry">
               <div class="section-heading">
-                <h3>입력값</h3>
+                <h3>Input</h3>
                 <span>좌표 기반 CG / 동특성 1차값</span>
               </div>
               <div class="input-grid compact">
-                <label><span>FL X</span><input name="flX" type="number" step="1" value="1600"><em>mm</em></label>
-                <label><span>FL Y</span><input name="flY" type="number" step="1" value="620"><em>mm</em></label>
-                <label><span>FR X</span><input name="frX" type="number" step="1" value="1600"><em>mm</em></label>
-                <label><span>FR Y</span><input name="frY" type="number" step="1" value="-620"><em>mm</em></label>
-                <label><span>RL X</span><input name="rlX" type="number" step="1" value="0"><em>mm</em></label>
-                <label><span>RL Y</span><input name="rlY" type="number" step="1" value="600"><em>mm</em></label>
-                <label><span>RR X</span><input name="rrX" type="number" step="1" value="0"><em>mm</em></label>
-                <label><span>RR Y</span><input name="rrY" type="number" step="1" value="-600"><em>mm</em></label>
-                <label><span>Vehicle speed</span><input name="speedKph" type="number" min="0" step="1" value="35"><em>km/h</em></label>
-                <label><span>Turn radius</span><input name="turnRadius" type="number" min="0" step="10" value="8000"><em>mm, centerline</em></label>
-                <label><span>Yaw moment arm</span><input name="yawArm" type="number" min="0" step="1" value="720"><em>mm, CG to tire CP estimate</em></label>
+                <label><span>FL X <small>전좌 X</small></span><input name="flX" type="number" step="1" value="1600"><em>mm</em></label>
+                <label><span>FL Y <small>전좌 Y</small></span><input name="flY" type="number" step="1" value="620"><em>mm</em></label>
+                <label><span>FR X <small>전우 X</small></span><input name="frX" type="number" step="1" value="1600"><em>mm</em></label>
+                <label><span>FR Y <small>전우 Y</small></span><input name="frY" type="number" step="1" value="-620"><em>mm</em></label>
+                <label><span>RL X <small>후좌 X</small></span><input name="rlX" type="number" step="1" value="0"><em>mm</em></label>
+                <label><span>RL Y <small>후좌 Y</small></span><input name="rlY" type="number" step="1" value="600"><em>mm</em></label>
+                <label><span>RR X <small>후우 X</small></span><input name="rrX" type="number" step="1" value="0"><em>mm</em></label>
+                <label><span>RR Y <small>후우 Y</small></span><input name="rrY" type="number" step="1" value="-600"><em>mm</em></label>
+                <label><span>Vehicle speed <small>차속</small></span><input name="speedKph" type="number" min="0" step="1" value="35"><em>km/h</em></label>
+                <label><span>Turn radius <small>회전반경</small></span><input name="turnRadius" type="number" min="0" step="10" value="8000"><em>mm, centerline</em></label>
+                <label><span>Yaw moment arm <small>요 모멘트 암</small></span><input name="yawArm" type="number" min="0" step="1" value="720"><em>mm, CG to tire CP estimate</em></label>
               </div>
               <label class="textarea-label">
-                <span>Mass point coordinates</span>
+                <span>Mass point coordinates <small>질량점 좌표</small></span>
                 <textarea name="massPoints" rows="8">driver,820,0,420,75
 battery,600,-120,180,22
 motor,220,0,210,18
@@ -462,20 +462,20 @@ frame,780,0,260,55</textarea>
 
             <div class="result-card chart-card">
               <div class="section-heading">
-                <h3>결과</h3>
+                <h3>Result</h3>
                 <span>CG / Wheelbase / Yaw</span>
               </div>
               <div class="metric-grid three">
-                <article><span>CG X</span><strong id="geo-cg-x">-</strong></article>
-                <article><span>CG Y</span><strong id="geo-cg-y">-</strong></article>
-                <article><span>CG Z</span><strong id="geo-cg-z">-</strong></article>
-                <article><span>Wheelbase</span><strong id="geo-wheelbase">-</strong></article>
-                <article><span>Front / rear track</span><strong id="geo-track">-</strong></article>
-                <article><span>Total point mass</span><strong id="geo-mass">-</strong></article>
-                <article><span>Radius display</span><strong id="geo-radius">-</strong></article>
-                <article><span>Lateral acceleration</span><strong id="geo-latacc">-</strong></article>
-                <article><span>Yaw rate</span><strong id="geo-yaw-rate">-</strong></article>
-                <article><span>Yaw torque estimate</span><strong id="geo-yaw-torque">-</strong></article>
+                <article><span>CG X <small>무게중심 X</small></span><strong id="geo-cg-x">-</strong></article>
+                <article><span>CG Y <small>무게중심 Y</small></span><strong id="geo-cg-y">-</strong></article>
+                <article><span>CG Z <small>무게중심 Z</small></span><strong id="geo-cg-z">-</strong></article>
+                <article><span>Wheelbase <small>휠베이스</small></span><strong id="geo-wheelbase">-</strong></article>
+                <article><span>Front / rear track <small>전/후륜 윤거</small></span><strong id="geo-track">-</strong></article>
+                <article><span>Total point mass <small>총 질량점 질량</small></span><strong id="geo-mass">-</strong></article>
+                <article><span>Radius display <small>표시 회전반경</small></span><strong id="geo-radius">-</strong></article>
+                <article><span>Lateral acceleration <small>횡가속도</small></span><strong id="geo-latacc">-</strong></article>
+                <article><span>Yaw rate <small>요 레이트</small></span><strong id="geo-yaw-rate">-</strong></article>
+                <article><span>Yaw torque estimate <small>요 토크 추정</small></span><strong id="geo-yaw-torque">-</strong></article>
               </div>
               <canvas id="geo-diagram" width="860" height="360" aria-label="Vehicle geometry diagram"></canvas>
               <div class="chain-status" id="geo-status">좌표와 질량점을 입력하면 계산됩니다.</div>
@@ -490,45 +490,45 @@ frame,780,0,260,55</textarea>
           <div class="calculator-layout">
             <form class="input-card" data-form="steering">
               <div class="section-heading">
-                <h3>입력값</h3>
+                <h3>Input</h3>
                 <span>Steering ratio / Ackermann</span>
               </div>
               <div class="input-grid compact">
-                <label><span>Wheelbase</span><input name="wheelbase" type="number" min="0" step="1" value="1600"><em>mm</em></label>
-                <label><span>Front track</span><input name="frontTrack" type="number" min="0" step="1" value="1240"><em>mm</em></label>
-                <label><span>Target turn radius</span><input name="turnRadius" type="number" min="0" step="10" value="8000"><em>mm, centerline</em></label>
+                <label><span>Wheelbase <small>휠베이스</small></span><input name="wheelbase" type="number" min="0" step="1" value="1600"><em>mm</em></label>
+                <label><span>Front track <small>전륜 윤거</small></span><input name="frontTrack" type="number" min="0" step="1" value="1240"><em>mm</em></label>
+                <label><span>Target turn radius <small>목표 회전반경</small></span><input name="turnRadius" type="number" min="0" step="10" value="8000"><em>mm, centerline</em></label>
                 <label>
-                  <span>Turn direction</span>
+                  <span>Turn direction <small>회전 방향</small></span>
                   <select name="turnDirection">
                     <option value="left">Left</option>
                     <option value="right">Right</option>
                   </select>
                   <em>inner wheel side</em>
                 </label>
-                <label><span>Steering wheel angle</span><input name="steeringWheelAngle" type="number" min="0" step="1" value="180"><em>deg at this corner</em></label>
-                <label><span>Rack travel</span><input name="rackTravel" type="number" min="0" step="0.1" value="28"><em>mm at this corner</em></label>
-                <label><span>Pinion pitch radius</span><input name="pinionRadius" type="number" min="0" step="0.1" value="9"><em>mm</em></label>
-                <label><span>Steering arm length</span><input name="steeringArm" type="number" min="0" step="0.1" value="115"><em>mm, simple estimate</em></label>
-                <label><span>Measured inner angle</span><input name="actualInnerAngle" type="number" min="0" step="0.1" value="12.2"><em>deg</em></label>
-                <label><span>Measured outer angle</span><input name="actualOuterAngle" type="number" min="0" step="0.1" value="10.5"><em>deg</em></label>
+                <label><span>Steering wheel angle <small>스티어링휠 각도</small></span><input name="steeringWheelAngle" type="number" min="0" step="1" value="180"><em>deg at this corner</em></label>
+                <label><span>Rack travel <small>랙 이동량</small></span><input name="rackTravel" type="number" min="0" step="0.1" value="28"><em>mm at this corner</em></label>
+                <label><span>Pinion pitch radius <small>피니언 피치 반경</small></span><input name="pinionRadius" type="number" min="0" step="0.1" value="9"><em>mm</em></label>
+                <label><span>Steering arm length <small>스티어링 암 길이</small></span><input name="steeringArm" type="number" min="0" step="0.1" value="115"><em>mm, simple estimate</em></label>
+                <label><span>Measured inner angle <small>실측 내륜각</small></span><input name="actualInnerAngle" type="number" min="0" step="0.1" value="12.2"><em>deg</em></label>
+                <label><span>Measured outer angle <small>실측 외륜각</small></span><input name="actualOuterAngle" type="number" min="0" step="0.1" value="10.5"><em>deg</em></label>
               </div>
             </form>
 
             <div class="result-card">
               <div class="section-heading">
-                <h3>결과</h3>
+                <h3>Result</h3>
                 <span>기하 이상값과 실측 비교</span>
               </div>
               <div class="metric-grid three">
-                <article><span>Center steer angle</span><strong id="steer-center-angle">-</strong></article>
-                <article><span>Ideal inner / outer</span><strong id="steer-ideal-angles">-</strong></article>
-                <article><span>Steering ratio</span><strong id="steer-ratio">-</strong></article>
-                <article><span>Ackermann percent</span><strong id="steer-ackermann-percent">-</strong></article>
-                <article><span>Measured turn radius</span><strong id="steer-measured-radius">-</strong></article>
-                <article><span>Radius error</span><strong id="steer-radius-error">-</strong></article>
-                <article><span>Rack per steering</span><strong id="steer-rack-ratio">-</strong></article>
-                <article><span>Pinion rack travel</span><strong id="steer-pinion-travel">-</strong></article>
-                <article><span>Rack steer estimate</span><strong id="steer-rack-steer">-</strong></article>
+                <article><span>Center steer angle <small>중심 조향각</small></span><strong id="steer-center-angle">-</strong></article>
+                <article><span>Ideal inner / outer <small>이상 내/외륜각</small></span><strong id="steer-ideal-angles">-</strong></article>
+                <article><span>Steering ratio <small>조향비</small></span><strong id="steer-ratio">-</strong></article>
+                <article><span>Ackermann percent <small>애커먼 비율</small></span><strong id="steer-ackermann-percent">-</strong></article>
+                <article><span>Measured turn radius <small>실측 회전반경</small></span><strong id="steer-measured-radius">-</strong></article>
+                <article><span>Radius error <small>반경 오차</small></span><strong id="steer-radius-error">-</strong></article>
+                <article><span>Rack per steering <small>조향각당 랙 이동</small></span><strong id="steer-rack-ratio">-</strong></article>
+                <article><span>Pinion rack travel <small>피니언 기준 랙 이동</small></span><strong id="steer-pinion-travel">-</strong></article>
+                <article><span>Rack steer estimate <small>랙 조향각 추정</small></span><strong id="steer-rack-steer">-</strong></article>
               </div>
               <div class="chain-status" id="steer-status">조향 기하 입력값을 확인하세요.</div>
               <p class="formula">
@@ -542,12 +542,12 @@ frame,780,0,260,55</textarea>
           <div class="wide-layout">
             <form class="input-card" data-form="chain">
               <div class="section-heading">
-                <h3>입력값</h3>
+                <h3>Input</h3>
                 <span>체인 / 스프로킷 패키징</span>
               </div>
               <div class="input-grid compact">
                 <label>
-                  <span>Chain size</span>
+                  <span>Chain size <small>체인 규격</small></span>
                   <select name="chainSize">
                     <option value="420">420</option>
                     <option value="428">428</option>
@@ -555,30 +555,30 @@ frame,780,0,260,55</textarea>
                   </select>
                   <em>standard</em>
                 </label>
-                <label><span>Target center distance</span><input name="centerDistance" type="number" min="0" step="1" value="450"><em>mm</em></label>
-                <label><span>Motor sprocket</span><input name="motorTeeth" type="number" min="0" step="1" value="12"><em>teeth</em></label>
-                <label><span>Wheel sprocket</span><input name="wheelTeeth" type="number" min="0" step="1" value="60"><em>teeth</em></label>
-                <label><span>Axle adjust range</span><input name="adjustRange" type="number" min="0" step="1" value="15"><em>± mm</em></label>
-                <label><span>Minimum wrap target</span><input name="minWrap" type="number" min="0" max="180" step="1" value="120"><em>deg</em></label>
+                <label><span>Target center distance <small>목표 축간거리</small></span><input name="centerDistance" type="number" min="0" step="1" value="450"><em>mm</em></label>
+                <label><span>Motor sprocket <small>모터 스프로킷</small></span><input name="motorTeeth" type="number" min="0" step="1" value="12"><em>teeth</em></label>
+                <label><span>Wheel sprocket <small>휠 스프로킷</small></span><input name="wheelTeeth" type="number" min="0" step="1" value="60"><em>teeth</em></label>
+                <label><span>Axle adjust range <small>액슬 조정 범위</small></span><input name="adjustRange" type="number" min="0" step="1" value="15"><em>± mm</em></label>
+                <label><span>Minimum wrap target <small>최소 감김각 목표</small></span><input name="minWrap" type="number" min="0" max="180" step="1" value="120"><em>deg</em></label>
               </div>
             </form>
 
             <div class="result-card chart-card">
               <div class="section-heading">
-                <h3>결과</h3>
+                <h3>Result</h3>
                 <span>추천 코수 / 감김각</span>
               </div>
               <div class="metric-grid three">
                 <article>
-                  <span>Recommended links</span>
+                  <span>Recommended links <small>추천 링크 수</small></span>
                   <strong id="chain-links">-</strong>
                 </article>
                 <article>
-                  <span>Small sprocket wrap</span>
+                  <span>Small sprocket wrap <small>소스프로킷 감김각</small></span>
                   <strong id="chain-wrap">-</strong>
                 </article>
                 <article>
-                  <span>Final drive ratio</span>
+                  <span>Final drive ratio <small>최종 감속비</small></span>
                   <strong id="chain-ratio">-</strong>
                 </article>
               </div>
@@ -676,10 +676,10 @@ frame,780,0,260,55</textarea>
             </div>
             <div class="hero-actions">
               <a class="repo-link" href="https://v2.monolith.luftaquila.io" target="_blank" rel="noreferrer">
-                Control Hub
+                Monolith Control Hub
               </a>
               <a class="repo-link secondary" href="https://github.com/r4m1-gist/G-BungE_LogAnalysis_Modified_Mk.4" target="_blank" rel="noreferrer">
-                Mk.4 Log Repo
+                Mk.4 Log Analysis
               </a>
             </div>
           </div>
@@ -756,7 +756,7 @@ frame,780,0,260,55</textarea>
             <article class="overview-card">
               <span>Mk.4 Log</span>
               <h3>G-BungE 로그 레포</h3>
-              <p>깊은 주행 분석과 기존 로그 포맷 참고는 G-BungE_LogAnalysis_Modified_Mk.4 레포에서 이어갑니다.</p>
+              <p>깊은 주행 분석과 기존 로그 포맷 참고는 G-BungE_LogAnalysis_Modified_Mk.4 레포에서 진행해주시면 됩니다.</p>
             </article>
             <article class="overview-card">
               <span>Local first</span>
@@ -773,6 +773,6 @@ frame,780,0,260,55</textarea>
       </section>
     </main>
 
-    <script src="app.js?v=1.0.2"></script>
+    <script src="app.js?v=1.0.2-labels"></script>
   </body>
 </html>
