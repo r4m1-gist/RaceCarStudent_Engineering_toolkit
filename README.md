@@ -9,12 +9,15 @@ current demo.
 
 Korean documentation is available in [README_KOR.md](README_KOR.md).
 
-Logo and Branding Restriction:
-Any project logos, names, marks, branding assets, and related visual identity
-materials are not licensed under the MIT License. Unauthorized use,
-reproduction, modification, redistribution, publication, or distribution of
-the logo or branding assets is strictly prohibited without prior written
-permission from the copyright holder.
+## License
+
+This project is source-available for viewing, reference, and educational review
+only. Use, modification, redistribution, deployment, hosting, or commercial use
+requires prior written permission from the copyright holder.
+
+Project logos, names, marks, branding assets, and related visual identity
+materials are also reserved and may not be used without prior written
+permission. See [LICENSE](LICENSE).
 
 ## Live Demo
 
