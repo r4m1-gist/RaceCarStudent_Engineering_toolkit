@@ -225,14 +225,16 @@ textarea {
   display: block;
 }
 
-.calc-tabs {
+.calc-tabs,
+.car-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 18px;
 }
 
-.calc-tab {
+.calc-tab,
+.car-tab {
   min-height: 38px;
   padding: 0 14px;
   border: 1px solid var(--line);
@@ -243,10 +245,155 @@ textarea {
 }
 
 .calc-tab:hover,
-.calc-tab.active {
+.calc-tab.active,
+.car-tab:hover,
+.car-tab.active {
   border-color: rgba(227, 49, 40, 0.42);
   background: var(--accent-soft);
   color: var(--accent-dark);
+}
+
+.car-panel {
+  display: none;
+}
+
+.car-panel.active {
+  display: block;
+}
+
+.car-info-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.78fr) repeat(2, minmax(280px, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+.car-hero,
+.spec-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.car-hero::before,
+.spec-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--ink));
+}
+
+.car-hero {
+  display: grid;
+  align-content: end;
+  min-height: 340px;
+  padding: 24px;
+  background:
+    linear-gradient(180deg, rgba(17, 24, 28, 0.08), rgba(17, 24, 28, 0.86)),
+    var(--ink);
+  color: #ffffff;
+}
+
+.car-hero span {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.car-hero h3 {
+  margin: 8px 0 10px;
+  font-size: 42px;
+  line-height: 1;
+}
+
+.car-hero p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.6;
+}
+
+.spec-card {
+  padding: 20px;
+}
+
+.spec-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.spec-list div {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.58fr) minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.spec-list div:last-child {
+  border-bottom: 0;
+}
+
+.spec-list dt,
+.spec-list dd {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.spec-list dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.spec-list dd {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.preset-panel {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.7fr) minmax(180px, 1fr) auto auto auto minmax(220px, 1fr);
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.preset-panel div {
+  min-width: 0;
+}
+
+.preset-panel span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.preset-panel strong {
+  display: block;
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+
+.preset-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .calculator-layout,
@@ -309,6 +456,54 @@ textarea {
 
 .intro-panel p:last-child {
   margin-bottom: 0;
+}
+
+.gbunge-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.gbunge-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.club-history {
+  min-width: 0;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.timeline-item {
+  min-height: 112px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, #f8f9fb);
+}
+
+.timeline-item h4 {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 15px;
+}
+
+.timeline-item p {
+  margin: 0;
+  color: #415064;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .intro-kicker {
@@ -953,7 +1148,7 @@ th {
   }
 
   .tool-nav {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .nav-button {
@@ -970,12 +1165,20 @@ th {
   .intro-layout,
   .overview-grid,
   .checklist-board,
+  .car-info-layout,
+  .timeline,
+  .preset-panel,
   .wide-layout {
     grid-template-columns: 1fr;
   }
 
   .analysis-hero,
   .checklist-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .gbunge-panel {
     align-items: stretch;
     flex-direction: column;
   }
@@ -1001,6 +1204,7 @@ th {
 
   .tool-nav,
   .calc-tabs,
+  .car-tabs,
   .input-grid,
   .input-grid.compact,
   .metric-grid,

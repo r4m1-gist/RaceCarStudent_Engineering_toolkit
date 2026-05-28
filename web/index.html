@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RaceCarStudent Engineering Toolkit</title>
-    <link rel="stylesheet" href="styles.css?v=1.0.2-cards">
+    <link rel="stylesheet" href="styles.css?v=1.0.3">
   </head>
   <body>
     <main class="app-shell">
@@ -21,6 +21,7 @@
 
         <nav class="tool-nav" aria-label="Toolkit sections">
           <button class="nav-button active" type="button" data-view="intro">Intro</button>
+          <button class="nav-button" type="button" data-view="carinfo">Car Info</button>
           <button class="nav-button" type="button" data-view="calculators">Calculators</button>
           <button class="nav-button" type="button" data-view="checklists">Checklists</button>
           <button class="nav-button" type="button" data-view="analysis">Data Analysis</button>
@@ -44,6 +45,7 @@
           </div>
         </header>
 
+        <!-- Intro -->
         <section class="view-section active" data-view-panel="intro" aria-labelledby="tool-title">
           <div class="intro-layout">
             <section class="intro-panel">
@@ -94,8 +96,135 @@
               </p>
             </aside>
           </div>
+
+          <section class="intro-panel gbunge-panel">
+            <section class="club-history">
+              <p class="intro-kicker">Team profile</p>
+              <h3>G-BungE Development Timeline</h3>
+              <p>
+                G-BungE는 2020년 10월 동아리 창설 이후, 매년 새로운 차량을 제작하며
+                오프로드 전기차 설계와 제작 경험을 축적해왔다.
+              </p>
+
+              <div class="timeline">
+                <div class="timeline-item">
+                  <h4>2020.10</h4>
+                  <p>G-BungE 동아리 창설</p>
+                </div>
+                <div class="timeline-item">
+                  <h4>2022</h4>
+                  <p>Mk.2 차량으로 Baja Student Korea에 첫 출전</p>
+                </div>
+                <div class="timeline-item">
+                  <h4>2023</h4>
+                  <p>Mk.3 차량을 통해 보다 경쟁력 있는 오프로드 전기차 제작에 도전</p>
+                </div>
+                <div class="timeline-item">
+                  <h4>2024</h4>
+                  <p>Mk.4 차량으로 3년 만에 Baja Student Korea 내구 레이스 첫 완주 달성</p>
+                </div>
+                <div class="timeline-item">
+                  <h4>2025-2026</h4>
+                  <p>Mk.5 차량 제작 및 Baja Student Korea 출전 준비</p>
+                </div>
+                <div class="timeline-item">
+                  <h4>2027</h4>
+                  <p>Formula Student Korea 출전을 목표로 새로운 도전 준비</p>
+                </div>
+              </div>
+            </section>
+            <div class="gbunge-actions">
+              <a class="repo-link" href="https://www.instagram.com/gbunge_/" target="_blank" rel="noreferrer">Instagram</a>
+              <a class="repo-link secondary" href="https://cafe.naver.com/gistgbunge" target="_blank" rel="noreferrer">Naver Cafe</a>
+            </div>
+          </section>
         </section>
 
+        <!-- Car Info -->
+        <section class="view-section" data-view-panel="carinfo" aria-labelledby="tool-title">
+          <nav class="car-tabs" aria-label="Vehicle info tabs">
+            <button class="car-tab active" type="button" data-car="mk5">Mk.5</button>
+            <button class="car-tab" type="button" data-car="gef27">GEF-27</button>
+          </nav>
+
+          <section class="car-panel active" data-car-panel="mk5" aria-label="Mk.5 vehicle information">
+            <div class="car-info-layout">
+              <article class="car-hero">
+                <span>Vehicle Profile</span>
+                <h3>Mk.5</h3>
+                <p>Baja / Formula Student 계열 차량 제원 정리용 프로필입니다. 설계가 확정되면 표의 값을 실제 차량 데이터로 교체하면 됩니다.</p>
+              </article>
+              <section class="spec-card">
+                <div class="section-heading">
+                  <h3>Core Specs</h3>
+                  <span>기본 패키징</span>
+                </div>
+                <dl class="spec-list">
+                  <div><dt>Vehicle type</dt><dd>Baja Student EV</dd></div>
+                  <div><dt>Wheelbase</dt><dd>1600 mm</dd></div>
+                  <div><dt>Front track</dt><dd>1240 mm</dd></div>
+                  <div><dt>Rear track</dt><dd>1200 mm</dd></div>
+                  <div><dt>Mass target</dt><dd>250 kg with driver</dd></div>
+                  <div><dt>Tire loaded radius</dt><dd>250 mm</dd></div>
+                </dl>
+              </section>
+              <section class="spec-card">
+                <div class="section-heading">
+                  <h3>System Notes</h3>
+                  <span>계산기 연결값</span>
+                </div>
+                <dl class="spec-list">
+                  <div><dt>Brake baseline</dt><dd>Front bias 60-65%</dd></div>
+                  <div><dt>Suspension target</dt><dd>35 N/mm wheel rate</dd></div>
+                  <div><dt>Motion ratio</dt><dd>0.72 spring / wheel</dd></div>
+                  <div><dt>Steering target</dt><dd>8.0 m centerline radius</dd></div>
+                  <div><dt>Drive layout</dt><dd>Chain drive, 12T / 60T example</dd></div>
+                  <div><dt>Status</dt><dd>Draft spec sheet</dd></div>
+                </dl>
+              </section>
+            </div>
+          </section>
+
+          <section class="car-panel" data-car-panel="gef27" aria-label="GEF-27 vehicle information">
+            <div class="car-info-layout">
+              <article class="car-hero">
+                <span>Vehicle Profile</span>
+                <h3>GEF-27</h3>
+                <p>BSK / endurance vehicle 계열 제원 정리용 프로필입니다. 실제 제작 치수와 부품 선정값이 정해지면 이 표를 기준 데이터로 쓰면 됩니다.</p>
+              </article>
+              <section class="spec-card">
+                <div class="section-heading">
+                  <h3>Core Specs</h3>
+                  <span>기본 패키징</span>
+                </div>
+                <dl class="spec-list">
+                  <div><dt>Vehicle type</dt><dd>Formula Student EV</dd></div>
+                  <div><dt>Wheelbase</dt><dd>1650 mm</dd></div>
+                  <div><dt>Front track</dt><dd>1280 mm</dd></div>
+                  <div><dt>Rear track</dt><dd>1260 mm</dd></div>
+                  <div><dt>Mass target</dt><dd>285 kg with driver</dd></div>
+                  <div><dt>Tire loaded radius</dt><dd>280 mm</dd></div>
+                </dl>
+              </section>
+              <section class="spec-card">
+                <div class="section-heading">
+                  <h3>System Notes</h3>
+                  <span>계산기 연결값</span>
+                </div>
+                <dl class="spec-list">
+                  <div><dt>Brake baseline</dt><dd>Front bias 58-63%</dd></div>
+                  <div><dt>Suspension target</dt><dd>Off-road compliance first</dd></div>
+                  <div><dt>Motion ratio</dt><dd>TBD after hardpoint freeze</dd></div>
+                  <div><dt>Steering target</dt><dd>Low-speed maneuverability</dd></div>
+                  <div><dt>Drive layout</dt><dd>Chain final drive candidate</dd></div>
+                  <div><dt>Status</dt><dd>Draft spec sheet</dd></div>
+                </dl>
+              </section>
+            </div>
+          </section>
+        </section>
+
+        <!-- Calculators -->
         <section class="view-section" data-view-panel="calculators" aria-labelledby="tool-title">
           <nav class="calc-tabs" aria-label="Calculator tabs">
             <button class="calc-tab active" type="button" data-calc="brake">Brake Bias</button>
@@ -107,8 +236,20 @@
             <button class="calc-tab" type="button" data-calc="chain">Chain Drive</button>
           </nav>
 
+          <section class="preset-panel" aria-label="Calculator presets">
+            <div>
+              <span>Preset</span>
+              <strong id="preset-scope">Brake Bias</strong>
+            </div>
+            <select id="preset-select" aria-label="Saved presets"></select>
+            <button class="ghost-button" id="save-preset" type="button">Save</button>
+            <button class="ghost-button" id="load-preset" type="button">Load</button>
+            <button class="ghost-button" id="delete-preset" type="button">Delete</button>
+            <p id="preset-status" aria-live="polite">현재 계산기 입력값을 브라우저에 저장합니다.</p>
+          </section>
+
           <section class="calc-panel active" data-calc-panel="brake" aria-label="Brake Bias calculator">
-          <div class="calculator-layout">
+            <div class="calculator-layout">
             <form class="input-card" data-form="brake">
               <div class="section-heading">
                 <h3>Input</h3>
@@ -117,19 +258,19 @@
               <div class="input-grid">
                 <label>
                   <span>Front piston area <small>전륜 피스톤 면적</small></span>
-                  <input name="frontArea" type="number" min="0" step="1" value="0">
+                  <input name="frontArea" type="number" min="0" step="1" value="820">
                   <em>mm² per caliper</em>
                 </label>
                 <label>
                   <span>Rear piston area <small>후륜 피스톤 면적</small></span>
-                  <input name="rearArea" type="number" min="0" step="1" value="0">
+                  <input name="rearArea" type="number" min="0" step="1" value="540">
                   <em>mm² per caliper</em>
                 </label>
                 <label>
                   <span>Front caliper type <small>전륜 캘리퍼 형식</small></span>
                   <select name="frontCaliperMultiplier">
                     <option value="2">Floating / single acting</option>
-                    <option value="1">Fixed, total piston area</option>
+                    <option value="1" selected>Fixed, total piston area</option>
                     <option value="2">Fixed, one-side area</option>
                   </select>
                   <em>clamp basis</em>
@@ -145,77 +286,77 @@
                 </label>
                 <label>
                   <span>Front discs <small>전륜 디스크 수</small></span>
-                  <input name="frontDiscs" type="number" min="0" step="1" value="0">
+                  <input name="frontDiscs" type="number" min="0" step="1" value="2">
                   <em>count</em>
                 </label>
                 <label>
                   <span>Rear discs <small>후륜 디스크 수</small></span>
-                  <input name="rearDiscs" type="number" min="0" step="1" value="0">
+                  <input name="rearDiscs" type="number" min="0" step="1" value="1">
                   <em>count</em>
                 </label>
                 <label>
                   <span>Front effective radius <small>전륜 유효 반지름</small></span>
-                  <input name="frontRadius" type="number" min="0" step="1" value="0">
+                  <input name="frontRadius" type="number" min="0" step="1" value="82">
                   <em>mm</em>
                 </label>
                 <label>
                   <span>Rear effective radius <small>후륜 유효 반지름</small></span>
-                  <input name="rearRadius" type="number" min="0" step="1" value="0">
+                  <input name="rearRadius" type="number" min="0" step="1" value="95">
                   <em>mm</em>
                 </label>
                 <label>
                   <span>Front pad μ <small>전륜 패드 마찰계수</small></span>
-                  <input name="frontMu" type="number" min="0" step="0.01" value="0">
+                  <input name="frontMu" type="number" min="0" step="0.01" value="0.42">
                   <em>-</em>
                 </label>
                 <label>
                   <span>Rear pad μ <small>후륜 패드 마찰계수</small></span>
-                  <input name="rearMu" type="number" min="0" step="0.01" value="0">
+                  <input name="rearMu" type="number" min="0" step="0.01" value="0.40">
                   <em>-</em>
                 </label>
                 <label>
                   <span>Front pressure <small>전륜 유압</small></span>
-                  <input name="frontPressure" type="number" min="0" step="0.1" value="0">
+                  <input name="frontPressure" type="number" min="0" step="0.1" value="42">
                   <em>bar</em>
                 </label>
                 <label>
                   <span>Rear pressure <small>후륜 유압</small></span>
-                  <input name="rearPressure" type="number" min="0" step="0.1" value="0">
+                  <input name="rearPressure" type="number" min="0" step="0.1" value="72">
                   <em>bar</em>
                 </label>
                 <label>
                   <span>Pedal force <small>페달 입력힘</small></span>
-                  <input name="pedalForce" type="number" min="0" step="1" value="0">
+                  <input name="pedalForce" type="number" min="0" step="1" value="350">
                   <em>N</em>
                 </label>
                 <label>
                   <span>Pedal ratio <small>페달비</small></span>
-                  <input name="pedalRatio" type="number" min="0" step="0.1" value="0">
+                  <input name="pedalRatio" type="number" min="0" step="0.1" value="4.5">
                   <em>-</em>
                 </label>
                 <label>
                   <span>Front master bore <small>전륜 마스터 보어</small></span>
-                  <input name="frontMasterBore" type="number" min="0" step="0.1" value="0">
+                  <input name="frontMasterBore" type="number" min="0" step="0.1" value="15.9">
                   <em>mm</em>
                 </label>
                 <label>
                   <span>Rear master bore <small>후륜 마스터 보어</small></span>
-                  <input name="rearMasterBore" type="number" min="0" step="0.1" value="0">
+                  <input name="rearMasterBore" type="number" min="0" step="0.1" value="12.7">
                   <em>mm</em>
                 </label>
                 <label>
                   <span>Balance bar front <small>전륜 배분</small></span>
-                  <input name="frontBalance" type="number" min="0" max="100" step="1" value="50">
+                  <input name="frontBalance" type="number" min="0" max="100" step="1" value="48">
                   <em>% pedal load</em>
                 </label>
                 <label>
                   <span>Tire loaded radius <small>타이어 동반경</small></span>
-                  <input name="tireRadius" type="number" min="0" step="1" value="0">
+                  <input name="tireRadius" type="number" min="0" step="1" value="250">
                   <em>mm</em>
                 </label>
                 <label>
                   <span>Vehicle mass <small>차량 질량</small></span>
-                  <input name="vehicleMass" type="number" min="0" step="1" value="0">
+                  <input name="vehicleMass" type="number" min="0" step="1" value="250">
                   <em>kg with driver</em>
                 </label>
               </div>
@@ -294,10 +435,10 @@
               </p>
             </div>
           </div>
-        </section>
+          </section>
 
           <section class="calc-panel" data-calc-panel="loadtransfer" aria-label="Load transfer calculator">
-          <div class="wide-layout capture-layout">
+            <div class="wide-layout capture-layout">
             <form class="input-card" data-form="loadtransfer">
               <div class="section-heading">
                 <h3>Input</h3>
@@ -361,10 +502,10 @@
               </p>
             </div>
           </div>
-        </section>
+          </section>
 
           <section class="calc-panel" data-calc-panel="spring" aria-label="Spring Rate calculator">
-          <div class="calculator-layout">
+            <div class="calculator-layout">
             <form class="input-card" data-form="spring">
               <div class="section-heading">
                 <h3>Input</h3>
@@ -373,17 +514,17 @@
               <div class="input-grid">
                 <label>
                   <span>Target wheel rate <small>목표 휠레이트</small></span>
-                  <input name="wheelRate" type="number" min="0" step="0.1" value="0">
+                  <input name="wheelRate" type="number" min="0" step="0.1" value="35">
                   <em>N/mm</em>
                 </label>
                 <label>
                   <span>Motion ratio <small>모션비</small></span>
-                  <input name="motionRatio" type="number" min="0" step="0.01" value="0">
+                  <input name="motionRatio" type="number" min="0" step="0.01" value="0.72">
                   <em>spring/wheel</em>
                 </label>
                 <label>
                   <span>Tire rate <small>타이어 강성</small></span>
-                  <input name="tireRate" type="number" min="0" step="1" value="0">
+                  <input name="tireRate" type="number" min="0" step="1" value="180">
                   <em>N/mm</em>
                 </label>
               </div>
@@ -423,10 +564,10 @@
               <p class="formula">spring rate = suspension wheel rate / motion ratio²</p>
             </div>
           </div>
-        </section>
+          </section>
 
           <section class="calc-panel" data-calc-panel="motion" aria-label="Motion Ratio calculator">
-          <div class="calculator-layout">
+            <div class="calculator-layout">
             <form class="input-card" data-form="motion">
               <div class="section-heading">
                 <h3>Input</h3>
@@ -435,12 +576,12 @@
               <div class="input-grid">
                 <label>
                   <span>Wheel travel <small>휠 스트로크</small></span>
-                  <input name="wheelTravel" type="number" min="0" step="0.1" value="0">
+                  <input name="wheelTravel" type="number" min="0" step="0.1" value="50">
                   <em>mm</em>
                 </label>
                 <label>
                   <span>Spring travel <small>스프링 스트로크</small></span>
-                  <input name="springTravel" type="number" min="0" step="0.1" value="0">
+                  <input name="springTravel" type="number" min="0" step="0.1" value="36">
                   <em>mm</em>
                 </label>
               </div>
@@ -479,10 +620,10 @@
               </div>
             </div>
           </div>
-        </section>
+          </section>
 
           <section class="calc-panel" data-calc-panel="geometry" aria-label="Geometry setup calculator">
-          <div class="wide-layout">
+            <div class="wide-layout">
             <form class="input-card" data-form="geometry">
               <div class="section-heading">
                 <h3>Input</h3>
@@ -552,10 +693,10 @@ frame,780,0,260,55</textarea>
               </p>
             </div>
           </div>
-        </section>
+          </section>
 
           <section class="calc-panel" data-calc-panel="steering" aria-label="Steering setup calculator">
-          <div class="calculator-layout">
+            <div class="calculator-layout">
             <form class="input-card" data-form="steering">
               <div class="section-heading">
                 <h3>Input</h3>
@@ -621,10 +762,10 @@ frame,780,0,260,55</textarea>
               </p>
             </div>
           </div>
-        </section>
+          </section>
 
           <section class="calc-panel" data-calc-panel="chain" aria-label="Chain Drive calculator">
-          <div class="wide-layout">
+            <div class="wide-layout">
             <form class="input-card" data-form="chain">
               <div class="section-heading">
                 <h3>Input</h3>
@@ -702,9 +843,10 @@ frame,780,0,260,55</textarea>
               </div>
             </div>
           </div>
-        </section>
+          </section>
         </section>
 
+        <!-- Checklists -->
         <section class="view-section" data-view-panel="checklists" aria-labelledby="tool-title">
           <div class="checklist-hero">
             <div>
@@ -766,6 +908,7 @@ frame,780,0,260,55</textarea>
           </div>
         </section>
 
+        <!-- Data Analysis -->
         <section class="view-section" data-view-panel="analysis" aria-labelledby="tool-title">
           <div class="analysis-hero">
             <div>
@@ -875,6 +1018,6 @@ frame,780,0,260,55</textarea>
       </section>
     </main>
 
-    <script src="app.js?v=1.0.2-cards"></script>
+    <script src="app.js?v=1.0.3"></script>
   </body>
 </html>

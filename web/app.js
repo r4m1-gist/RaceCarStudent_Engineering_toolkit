@@ -1,5 +1,6 @@
 const viewTitles = {
   intro: "Intro",
+  carinfo: "Car Info",
   calculators: "Calculators",
   checklists: "Checklists",
   analysis: "Data Analysis",
@@ -35,6 +36,7 @@ const analysisState = {
   fileName: "",
 };
 const checklistStorageKey = "g-bunge-engineering-toolkit-checklists";
+const presetStorageKey = "g-bunge-engineering-toolkit-presets";
 
 function numberValue(form, name) {
   const value = Number(form.elements[name].value);
@@ -87,6 +89,140 @@ function resetForm(tool) {
   updateAll();
 }
 
+function readPresetState() {
+  try {
+    return JSON.parse(localStorage.getItem(presetStorageKey)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function writePresetState(state) {
+  try {
+    localStorage.setItem(presetStorageKey, JSON.stringify(state));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function getFormValues(tool) {
+  const form = document.querySelector(`[data-form="${tool}"]`);
+  if (!form) return {};
+  return Object.fromEntries(new FormData(form).entries());
+}
+
+function applyFormValues(tool, values) {
+  const form = document.querySelector(`[data-form="${tool}"]`);
+  if (!form) return;
+
+  Object.entries(values || {}).forEach(([name, value]) => {
+    const field = form.elements[name];
+    if (field) field.value = value;
+  });
+  updateAll();
+}
+
+function presetTimestamp() {
+  return new Date().toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function setPresetStatus(message) {
+  const status = document.querySelector("#preset-status");
+  if (status) status.textContent = message;
+}
+
+function getActivePresets() {
+  const state = readPresetState();
+  return Array.isArray(state[activeCalc]) ? state[activeCalc] : [];
+}
+
+function renderPresetSelect(selectedId = "") {
+  const select = document.querySelector("#preset-select");
+  const scope = document.querySelector("#preset-scope");
+  if (!select || !scope) return;
+
+  const presets = getActivePresets();
+  scope.textContent = calcTitles[activeCalc];
+  select.innerHTML = presets.length
+    ? presets
+        .map((preset) => `<option value="${escapeHtml(preset.id)}">${escapeHtml(preset.name)}</option>`)
+        .join("")
+    : '<option value="">No saved presets</option>';
+  select.disabled = presets.length === 0;
+  select.value = presets.some((preset) => preset.id === selectedId) ? selectedId : presets[0]?.id || "";
+}
+
+function saveActivePreset() {
+  const name = prompt(`${calcTitles[activeCalc]} preset name`, `${calcTitles[activeCalc]} ${presetTimestamp()}`);
+  const trimmedName = name?.trim();
+  if (!trimmedName) {
+    setPresetStatus("Preset 저장을 취소했습니다.");
+    return;
+  }
+
+  const state = readPresetState();
+  const presets = Array.isArray(state[activeCalc]) ? state[activeCalc] : [];
+  const id = `preset-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const preset = {
+    id,
+    name: trimmedName,
+    tool: activeCalc,
+    savedAt: new Date().toISOString(),
+    values: getFormValues(activeCalc),
+  };
+
+  state[activeCalc] = [preset, ...presets.filter((item) => item.name !== trimmedName)];
+  if (!writePresetState(state)) {
+    setPresetStatus("브라우저 저장 공간에 접근하지 못했습니다.");
+    return;
+  }
+
+  renderPresetSelect(id);
+  setPresetStatus(`${trimmedName} 저장 완료`);
+}
+
+function selectedPreset() {
+  const select = document.querySelector("#preset-select");
+  const id = select?.value;
+  return getActivePresets().find((preset) => preset.id === id);
+}
+
+function loadActivePreset() {
+  const preset = selectedPreset();
+  if (!preset) {
+    setPresetStatus("불러올 preset이 없습니다.");
+    return;
+  }
+
+  applyFormValues(activeCalc, preset.values);
+  setPresetStatus(`${preset.name} 불러오기 완료`);
+}
+
+function deleteActivePreset() {
+  const preset = selectedPreset();
+  if (!preset) {
+    setPresetStatus("삭제할 preset이 없습니다.");
+    return;
+  }
+
+  const state = readPresetState();
+  state[activeCalc] = getActivePresets().filter((item) => item.id !== preset.id);
+  if (!writePresetState(state)) {
+    setPresetStatus("브라우저 저장 공간에 접근하지 못했습니다.");
+    return;
+  }
+
+  renderPresetSelect();
+  setPresetStatus(`${preset.name} 삭제 완료`);
+}
+
 let activeCalc = "brake";
 
 function activateView(view) {
@@ -116,6 +252,17 @@ function activateCalc(calc) {
     document.querySelector("#tool-title").textContent = calcTitles[calc];
     document.querySelector("#reset-tool").dataset.calc = calc;
   }
+  renderPresetSelect();
+  setPresetStatus(`${calcTitles[calc]} 입력값을 저장하거나 불러올 수 있습니다.`);
+}
+
+function activateCarInfo(car) {
+  document.querySelectorAll(".car-tab").forEach((button) => {
+    button.classList.toggle("active", button.dataset.car === car);
+  });
+  document.querySelectorAll(".car-panel").forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.carPanel === car);
+  });
 }
 
 function updateBrake() {
@@ -1448,6 +1595,13 @@ function initCaptureMode() {
   });
 }
 
+function initPresets() {
+  document.querySelector("#save-preset").addEventListener("click", saveActivePreset);
+  document.querySelector("#load-preset").addEventListener("click", loadActivePreset);
+  document.querySelector("#delete-preset").addEventListener("click", deleteActivePreset);
+  renderPresetSelect();
+}
+
 function updateAll() {
   updateBrake();
   updateLoadTransfer();
@@ -1470,6 +1624,12 @@ document.querySelectorAll(".calc-tab").forEach((button) => {
   });
 });
 
+document.querySelectorAll(".car-tab").forEach((button) => {
+  button.addEventListener("click", () => {
+    activateCarInfo(button.dataset.car);
+  });
+});
+
 document.querySelector("#reset-tool").addEventListener("click", (event) => {
   resetForm(event.currentTarget.dataset.calc || activeCalc);
 });
@@ -1480,9 +1640,11 @@ document.querySelectorAll("input, select, textarea").forEach((field) => {
 });
 
 saveDefaults();
+activateCarInfo("mk5");
 activateCalc("brake");
 activateView("intro");
 initChecklists();
 initCaptureMode();
+initPresets();
 initAnalysisViewer();
 updateAll();
