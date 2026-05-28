@@ -223,6 +223,102 @@ function deleteActivePreset() {
   setPresetStatus(`${preset.name} 삭제 완료`);
 }
 
+function countPresets(state) {
+  return Object.values(state || {}).reduce((total, presets) => total + (Array.isArray(presets) ? presets.length : 0), 0);
+}
+
+function exportPresets() {
+  const state = readPresetState();
+  const presetCount = countPresets(state);
+  if (presetCount === 0) {
+    setPresetStatus("내보낼 preset이 없습니다.");
+    return;
+  }
+
+  const payload = {
+    app: "RaceCarStudent Engineering Toolkit",
+    version: "1.0.3",
+    exportedAt: new Date().toISOString(),
+    presets: state,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `racecar-toolkit-presets-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  setPresetStatus(`${presetCount}개 preset을 JSON으로 내보냈습니다.`);
+}
+
+function normalizeImportedPresets(parsed) {
+  const source = parsed?.presets || parsed;
+  const normalized = {};
+
+  Object.entries(source || {}).forEach(([tool, presets]) => {
+    if (!calcTitles[tool] || !Array.isArray(presets)) return;
+    normalized[tool] = presets
+      .filter((preset) => preset && typeof preset.name === "string" && preset.values && typeof preset.values === "object")
+      .map((preset) => ({
+        id: preset.id || `preset-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: preset.name,
+        tool,
+        savedAt: preset.savedAt || new Date().toISOString(),
+        values: preset.values,
+      }));
+  });
+
+  return normalized;
+}
+
+function mergePresetState(current, imported) {
+  const merged = { ...current };
+
+  Object.entries(imported).forEach(([tool, importedPresets]) => {
+    const existing = Array.isArray(merged[tool]) ? merged[tool] : [];
+    const existingNames = new Set(existing.map((preset) => preset.name));
+    const renamedImports = importedPresets.map((preset) => {
+      if (!existingNames.has(preset.name)) {
+        existingNames.add(preset.name);
+        return preset;
+      }
+      const renamed = { ...preset, name: `${preset.name} imported` };
+      existingNames.add(renamed.name);
+      return renamed;
+    });
+    merged[tool] = [...renamedImports, ...existing];
+  });
+
+  return merged;
+}
+
+async function importPresetsFile(file) {
+  if (!file) return;
+
+  try {
+    const parsed = JSON.parse(await file.text());
+    const imported = normalizeImportedPresets(parsed);
+    const importedCount = countPresets(imported);
+    if (importedCount === 0) {
+      setPresetStatus("가져올 preset을 찾지 못했습니다.");
+      return;
+    }
+
+    const merged = mergePresetState(readPresetState(), imported);
+    if (!writePresetState(merged)) {
+      setPresetStatus("브라우저 저장 공간에 접근하지 못했습니다.");
+      return;
+    }
+
+    renderPresetSelect();
+    setPresetStatus(`${importedCount}개 preset을 가져왔습니다.`);
+  } catch {
+    setPresetStatus("JSON preset 파일을 읽지 못했습니다.");
+  }
+}
+
 let activeCalc = "brake";
 
 function activateView(view) {
@@ -1599,6 +1695,14 @@ function initPresets() {
   document.querySelector("#save-preset").addEventListener("click", saveActivePreset);
   document.querySelector("#load-preset").addEventListener("click", loadActivePreset);
   document.querySelector("#delete-preset").addEventListener("click", deleteActivePreset);
+  document.querySelector("#export-presets").addEventListener("click", exportPresets);
+  document.querySelector("#import-presets").addEventListener("click", () => {
+    document.querySelector("#preset-import-file").click();
+  });
+  document.querySelector("#preset-import-file").addEventListener("change", (event) => {
+    importPresetsFile(event.currentTarget.files[0]);
+    event.currentTarget.value = "";
+  });
   renderPresetSelect();
 }
 

@@ -135,6 +135,14 @@ textarea {
   font-size: 14px;
 }
 
+.release-version {
+  margin: -18px 2px 0;
+  color: rgba(248, 251, 253, 0.44);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
 .workspace {
   padding: 28px;
   min-width: 0;
@@ -360,7 +368,7 @@ textarea {
 
 .preset-panel {
   display: grid;
-  grid-template-columns: minmax(130px, 0.7fr) minmax(180px, 1fr) auto auto auto minmax(220px, 1fr);
+  grid-template-columns: minmax(130px, 0.7fr) minmax(180px, 1fr) repeat(5, auto) minmax(220px, 1fr);
   gap: 10px;
   align-items: center;
   margin-bottom: 18px;
@@ -394,6 +402,14 @@ textarea {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.4;
+}
+
+#preset-import-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .calculator-layout,

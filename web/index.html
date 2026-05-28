@@ -31,6 +31,7 @@
           <h2>단위 기준</h2>
           <p>길이 입력은 기본적으로 mm, 힘은 N, 압력은 bar 기준입니다. 결과는 입력할 때마다 바로 갱신됩니다.</p>
         </section>
+        <p class="release-version">Deploy version v1.0.3</p>
       </aside>
 
       <section class="workspace">
@@ -245,6 +246,9 @@
             <button class="ghost-button" id="save-preset" type="button">Save</button>
             <button class="ghost-button" id="load-preset" type="button">Load</button>
             <button class="ghost-button" id="delete-preset" type="button">Delete</button>
+            <button class="ghost-button" id="export-presets" type="button">Export</button>
+            <button class="ghost-button" id="import-presets" type="button">Import</button>
+            <input id="preset-import-file" type="file" accept=".json,application/json">
             <p id="preset-status" aria-live="polite">현재 계산기 입력값을 브라우저에 저장합니다.</p>
           </section>
 
