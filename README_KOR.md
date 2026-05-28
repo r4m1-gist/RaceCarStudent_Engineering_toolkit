@@ -11,7 +11,7 @@ Formula Student Korea(FSK), Baja Student Korea(BSK), 학생 자작차 팀을 위
 현재 GitHub Pages 주소는 아래입니다.
 
 ```text
-https://r4m1-gist.github.io/RaceCarStudent_Engineering_Toolkit/
+https://r4m1-gist.github.io/RaceCarStudent_Engineering_Toolkit/web/index.html
 ```
 
 ## 폴더 구조
