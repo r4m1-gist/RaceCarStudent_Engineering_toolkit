@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RaceCarStudent Engineering Toolkit</title>
-    <link rel="stylesheet" href="styles.css?v=1.0.2-labels">
+    <link rel="stylesheet" href="styles.css?v=1.0.2-cards">
   </head>
   <body>
     <main class="app-shell">
@@ -221,10 +221,27 @@
               </div>
             </form>
 
-            <div class="result-card">
+            <div class="result-card capture-card">
               <div class="section-heading">
                 <h3>Result</h3>
                 <span>정적 토크 비율</span>
+              </div>
+              <div class="capture-hero">
+                <div>
+                  <span>Front bias <small>전륜 비율</small></span>
+                  <strong id="brake-hero-front">-</strong>
+                  <em>계산된 전륜 제동 분배</em>
+                </div>
+                <div>
+                  <span>Hydraulic decel <small>유압 기준 감속도</small></span>
+                  <strong id="brake-hero-decel">-</strong>
+                  <em>입력 유압/페달 조건 기준</em>
+                </div>
+              </div>
+              <div class="report-flow" aria-label="Brake calculation flow">
+                <article><span>Goal <small>목표</small></span><strong id="brake-goal">-</strong></article>
+                <article><span>Calculation <small>계산</small></span><strong id="brake-calc">-</strong></article>
+                <article><span>Implementation <small>구현</small></span><strong id="brake-implementation">-</strong></article>
               </div>
               <div class="bias-meter" aria-label="Brake bias meter">
                 <div id="brake-front-bar"></div>
@@ -371,10 +388,27 @@
                 </label>
               </div>
             </form>
-            <div class="result-card">
+            <div class="result-card capture-card">
               <div class="section-heading">
                 <h3>Result</h3>
                 <span>스프링 선택 기준</span>
+              </div>
+              <div class="capture-hero">
+                <div>
+                  <span>Required spring rate <small>필요 스프링 레이트</small></span>
+                  <strong id="spring-hero-rate">-</strong>
+                  <em>목표 휠레이트 기준 산출값</em>
+                </div>
+                <div>
+                  <span>Motion ratio <small>모션비</small></span>
+                  <strong id="spring-hero-motion">-</strong>
+                  <em>스프링/휠 스트로크 비율</em>
+                </div>
+              </div>
+              <div class="report-flow" aria-label="Spring calculation flow">
+                <article><span>Goal <small>목표</small></span><strong id="spring-goal">-</strong></article>
+                <article><span>Calculation <small>계산</small></span><strong id="spring-calc">-</strong></article>
+                <article><span>Implementation <small>구현</small></span><strong id="spring-implementation">-</strong></article>
               </div>
               <div class="metric-grid two">
                 <article>
@@ -411,10 +445,27 @@
                 </label>
               </div>
             </form>
-            <div class="result-card">
+            <div class="result-card capture-card">
               <div class="section-heading">
                 <h3>Result</h3>
                 <span>댐퍼/스프링 레버비</span>
+              </div>
+              <div class="capture-hero">
+                <div>
+                  <span>Motion ratio <small>모션비</small></span>
+                  <strong id="motion-hero-ratio">-</strong>
+                  <em>spring travel / wheel travel</em>
+                </div>
+                <div>
+                  <span>Installation ratio <small>설치비</small></span>
+                  <strong id="motion-hero-install">-</strong>
+                  <em>wheel travel / spring travel</em>
+                </div>
+              </div>
+              <div class="report-flow" aria-label="Motion ratio calculation flow">
+                <article><span>Goal <small>목표</small></span><strong id="motion-goal">-</strong></article>
+                <article><span>Calculation <small>계산</small></span><strong id="motion-calc">-</strong></article>
+                <article><span>Implementation <small>구현</small></span><strong id="motion-implementation">-</strong></article>
               </div>
               <div class="metric-grid two">
                 <article>
@@ -460,10 +511,27 @@ frame,780,0,260,55</textarea>
               </label>
             </form>
 
-            <div class="result-card chart-card">
+            <div class="result-card chart-card capture-card">
               <div class="section-heading">
                 <h3>Result</h3>
                 <span>CG / Wheelbase / Yaw</span>
+              </div>
+              <div class="capture-hero">
+                <div>
+                  <span>CG height <small>무게중심 높이</small></span>
+                  <strong id="geo-hero-cgz">-</strong>
+                  <em>입력 질량점 가중평균</em>
+                </div>
+                <div>
+                  <span>Lateral acceleration <small>횡가속도</small></span>
+                  <strong id="geo-hero-latacc">-</strong>
+                  <em>속도/회전반경 기준</em>
+                </div>
+              </div>
+              <div class="report-flow" aria-label="Geometry calculation flow">
+                <article><span>Goal <small>목표</small></span><strong id="geo-goal">-</strong></article>
+                <article><span>Calculation <small>계산</small></span><strong id="geo-calc">-</strong></article>
+                <article><span>Implementation <small>구현</small></span><strong id="geo-implementation">-</strong></article>
               </div>
               <div class="metric-grid three">
                 <article><span>CG X <small>무게중심 X</small></span><strong id="geo-cg-x">-</strong></article>
@@ -514,10 +582,27 @@ frame,780,0,260,55</textarea>
               </div>
             </form>
 
-            <div class="result-card">
+            <div class="result-card capture-card">
               <div class="section-heading">
                 <h3>Result</h3>
                 <span>기하 이상값과 실측 비교</span>
+              </div>
+              <div class="capture-hero">
+                <div>
+                  <span>Steering ratio <small>조향비</small></span>
+                  <strong id="steer-hero-ratio">-</strong>
+                  <em>steering wheel / road wheel</em>
+                </div>
+                <div>
+                  <span>Ackermann percent <small>애커먼 비율</small></span>
+                  <strong id="steer-hero-ackermann">-</strong>
+                  <em>실측 내/외륜각 기준</em>
+                </div>
+              </div>
+              <div class="report-flow" aria-label="Steering calculation flow">
+                <article><span>Goal <small>목표</small></span><strong id="steer-goal">-</strong></article>
+                <article><span>Calculation <small>계산</small></span><strong id="steer-calc">-</strong></article>
+                <article><span>Implementation <small>구현</small></span><strong id="steer-implementation">-</strong></article>
               </div>
               <div class="metric-grid three">
                 <article><span>Center steer angle <small>중심 조향각</small></span><strong id="steer-center-angle">-</strong></article>
@@ -563,10 +648,27 @@ frame,780,0,260,55</textarea>
               </div>
             </form>
 
-            <div class="result-card chart-card">
+            <div class="result-card chart-card capture-card">
               <div class="section-heading">
                 <h3>Result</h3>
                 <span>추천 코수 / 감김각</span>
+              </div>
+              <div class="capture-hero">
+                <div>
+                  <span>Recommended links <small>추천 링크 수</small></span>
+                  <strong id="chain-hero-links">-</strong>
+                  <em>목표 축간거리 기준</em>
+                </div>
+                <div>
+                  <span>Small sprocket wrap <small>소스프로킷 감김각</small></span>
+                  <strong id="chain-hero-wrap">-</strong>
+                  <em>체인 이탈/마모 검토 기준</em>
+                </div>
+              </div>
+              <div class="report-flow" aria-label="Chain calculation flow">
+                <article><span>Goal <small>목표</small></span><strong id="chain-goal">-</strong></article>
+                <article><span>Calculation <small>계산</small></span><strong id="chain-calc">-</strong></article>
+                <article><span>Implementation <small>구현</small></span><strong id="chain-implementation">-</strong></article>
               </div>
               <div class="metric-grid three">
                 <article>
@@ -773,6 +875,6 @@ frame,780,0,260,55</textarea>
       </section>
     </main>
 
-    <script src="app.js?v=1.0.2-labels"></script>
+    <script src="app.js?v=1.0.2-cards"></script>
   </body>
 </html>

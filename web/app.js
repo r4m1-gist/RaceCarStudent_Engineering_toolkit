@@ -50,6 +50,11 @@ function format(value, digits = 1, suffix = "") {
   return `${value.toFixed(digits)}${suffix}`;
 }
 
+function setText(selector, text) {
+  const element = document.querySelector(selector);
+  if (element) element.textContent = text;
+}
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -166,6 +171,14 @@ function updateBrake() {
   document.querySelector("#brake-decel").textContent = format(decelG, 2, " g");
   document.querySelector("#brake-front-bar").style.width = `${frontPercent}%`;
   document.querySelector("#brake-rear-bar").style.width = `${rearPercent}%`;
+  setText("#brake-hero-front", format(frontPercent, 1, "%"));
+  setText("#brake-hero-decel", format(decelG, 2, " g"));
+  setText("#brake-goal", "목표 제동 분배와 감속 성능을 동시에 확인");
+  setText(
+    "#brake-calc",
+    `전/후륜 토크 ${format(frontTorque, 1, " Nm")} / ${format(rearTorque, 1, " Nm")}로 bias 산출`,
+  );
+  setText("#brake-implementation", `페달/마스터/캘리퍼 조합 기준 전륜 ${format(frontPercent, 1, "%")} 구현`);
 }
 
 function updateLoadTransfer() {
@@ -231,6 +244,11 @@ function updateSpring() {
   const springRate = motionRatio > 0 ? suspensionWheelRate / motionRatio ** 2 : NaN;
   document.querySelector("#spring-rate").textContent = format(springRate, 1, " N/mm");
   document.querySelector("#suspension-wheel-rate").textContent = format(suspensionWheelRate, 1, " N/mm");
+  setText("#spring-hero-rate", format(springRate, 1, " N/mm"));
+  setText("#spring-hero-motion", format(motionRatio, 3));
+  setText("#spring-goal", `목표 휠레이트 ${format(wheelRate, 1, " N/mm")} 기준 스프링 선정`);
+  setText("#spring-calc", `타이어 강성 보정 후 suspension wheel rate ${format(suspensionWheelRate, 1, " N/mm")}`);
+  setText("#spring-implementation", `모션비 ${format(motionRatio, 3)} 기준 spring rate ${format(springRate, 1, " N/mm")} 적용`);
 }
 
 function updateMotion() {
@@ -242,6 +260,11 @@ function updateMotion() {
 
   document.querySelector("#motion-ratio").textContent = format(motionRatio, 3);
   document.querySelector("#installation-ratio").textContent = format(installationRatio, 3);
+  setText("#motion-hero-ratio", format(motionRatio, 3));
+  setText("#motion-hero-install", format(installationRatio, 3));
+  setText("#motion-goal", `휠 스트로크 ${format(wheelTravel, 1, " mm")} 기준 레버비 확인`);
+  setText("#motion-calc", `스프링 스트로크 ${format(springTravel, 1, " mm")} / 휠 스트로크 ${format(wheelTravel, 1, " mm")}`);
+  setText("#motion-implementation", `댐퍼/스프링 설계에는 motion ratio ${format(motionRatio, 3)} 사용`);
 }
 
 function point2d(form, prefix) {
@@ -428,6 +451,11 @@ function updateGeometry() {
   document.querySelector("#geo-latacc").textContent = format(lateralAccel, 2, " g");
   document.querySelector("#geo-yaw-rate").textContent = format(yawRate, 3, " rad/s");
   document.querySelector("#geo-yaw-torque").textContent = format(yawTorque, 1, " Nm");
+  setText("#geo-hero-cgz", format(cg.z, 1, " mm"));
+  setText("#geo-hero-latacc", format(lateralAccel, 2, " g"));
+  setText("#geo-goal", `질량점 기반 CG와 ${format(numberValue(form, "speedKph"), 0, " km/h")} 선회 조건 검토`);
+  setText("#geo-calc", `wheelbase ${format(wheelbase, 0, " mm")}, radius ${format(displayRadius, 0, " mm")} 기준`);
+  setText("#geo-implementation", `CG Z ${format(cg.z, 1, " mm")}와 lateral accel ${format(lateralAccel, 2, " g")}를 설계 기준으로 사용`);
 
   const status = document.querySelector("#geo-status");
   status.className = "chain-status";
@@ -489,6 +517,11 @@ function updateSteering() {
   document.querySelector("#steer-rack-ratio").textContent = format(rackPerSteeringDeg, 3, " mm/deg");
   document.querySelector("#steer-pinion-travel").textContent = format(pinionTravel, 1, " mm");
   document.querySelector("#steer-rack-steer").textContent = format(signedDeg(rackSteer, direction), 2, " deg");
+  setText("#steer-hero-ratio", format(steeringRatio, 2, ":1"));
+  setText("#steer-hero-ackermann", format(ackermann, 1, "%"));
+  setText("#steer-goal", `목표 회전반경 ${format(turnRadius, 0, " mm")}에서 조향 기하 검토`);
+  setText("#steer-calc", `ideal inner/outer ${format(idealInnerDeg, 2, " deg")} / ${format(idealOuterDeg, 2, " deg")}`);
+  setText("#steer-implementation", `실측 Ackermann ${format(ackermann, 1, "%")}, radius error ${format(radiusError, 0, " mm")}`);
 
   const status = document.querySelector("#steer-status");
   status.className = "chain-status";
@@ -680,6 +713,14 @@ function updateChain() {
   document.querySelector("#chain-links").textContent = recommended ? `${recommended.links} links` : "-";
   document.querySelector("#chain-wrap").textContent = recommended ? format(recommended.wrapSmall, 1, " deg") : "-";
   document.querySelector("#chain-ratio").textContent = format(result.ratio, 2, ":1");
+  setText("#chain-hero-links", recommended ? `${recommended.links} links` : "-");
+  setText("#chain-hero-wrap", recommended ? format(recommended.wrapSmall, 1, " deg") : "-");
+  setText("#chain-goal", `목표 축간거리 ${format(numberValue(document.querySelector('[data-form="chain"]'), "centerDistance"), 0, " mm")} 기준 체인 길이 선정`);
+  setText(
+    "#chain-calc",
+    recommended ? `${recommended.links} links에서 실제 중심거리 ${format(recommended.actualCenter, 1, " mm")}` : "입력값 확인 필요",
+  );
+  setText("#chain-implementation", recommended ? `${format(result.ratio, 2, ":1")} final drive, wrap ${format(recommended.wrapSmall, 1, " deg")}` : "-");
 
   statusElement.className = "chain-status";
   if (recommended) {
