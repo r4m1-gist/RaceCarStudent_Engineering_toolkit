@@ -235,6 +235,9 @@
             <button class="calc-tab" type="button" data-calc="geometry">Geometry Setup</button>
             <button class="calc-tab" type="button" data-calc="steering">Steering Setup</button>
             <button class="calc-tab" type="button" data-calc="chain">Chain Drive</button>
+            <button class="calc-tab" type="button" data-calc="speed">Speed / RPM</button>
+            <button class="calc-tab" type="button" data-calc="tractive">Tractive Force</button>
+            <button class="calc-tab" type="button" data-calc="battery">Battery Runtime</button>
           </nav>
 
           <section class="preset-panel" aria-label="Calculator presets">
@@ -847,6 +850,142 @@ frame,780,0,260,55</textarea>
               </div>
             </div>
           </div>
+          </section>
+
+          <section class="calc-panel" data-calc-panel="speed" aria-label="Speed and RPM calculator">
+            <div class="calculator-layout">
+              <form class="input-card" data-form="speed">
+                <div class="section-heading">
+                  <h3>Input</h3>
+                  <span>모터 RPM / 감속비 / 타이어</span>
+                </div>
+                <div class="input-grid">
+                  <label><span>Motor RPM <small>모터 회전수</small></span><input name="motorRpm" type="number" min="0" step="100" value="5200"><em>rpm</em></label>
+                  <label><span>Final drive ratio <small>최종 감속비</small></span><input name="finalDrive" type="number" min="0" step="0.01" value="5"><em>wheel sprocket / motor sprocket</em></label>
+                  <label><span>Tire diameter <small>타이어 직경</small></span><input name="tireDiameter" type="number" min="0" step="1" value="500"><em>mm</em></label>
+                  <label><span>Target speed <small>목표 속도</small></span><input name="targetSpeed" type="number" min="0" step="1" value="55"><em>km/h</em></label>
+                </div>
+              </form>
+
+              <div class="result-card capture-card">
+                <div class="section-heading">
+                  <h3>Result</h3>
+                  <span>속도 / 필요 감속비</span>
+                </div>
+                <div class="capture-hero">
+                  <div>
+                    <span>Vehicle speed <small>예상 최고속</small></span>
+                    <strong id="speed-vehicle">-</strong>
+                    <em>입력 RPM과 감속비 기준</em>
+                  </div>
+                  <div>
+                    <span>Required ratio <small>필요 감속비</small></span>
+                    <strong id="speed-required-ratio">-</strong>
+                    <em>목표 속도 기준 역산</em>
+                  </div>
+                </div>
+                <div class="metric-grid three">
+                  <article><span>Wheel RPM <small>휠 회전수</small></span><strong id="speed-wheel-rpm">-</strong></article>
+                  <article><span>Tire circumference <small>타이어 둘레</small></span><strong id="speed-circumference">-</strong></article>
+                  <article><span>Target wheel RPM <small>목표 휠 RPM</small></span><strong id="speed-target-wheel-rpm">-</strong></article>
+                </div>
+                <p class="formula">vehicle speed = motor rpm / final drive × tire circumference. Required ratio는 목표 속도에서 필요한 전체 감속비입니다.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="calc-panel" data-calc-panel="tractive" aria-label="Tractive force calculator">
+            <div class="calculator-layout">
+              <form class="input-card" data-form="tractive">
+                <div class="section-heading">
+                  <h3>Input</h3>
+                  <span>구동력 / 가속도</span>
+                </div>
+                <div class="input-grid">
+                  <label><span>Motor torque <small>모터 토크</small></span><input name="motorTorque" type="number" min="0" step="0.1" value="42"><em>Nm</em></label>
+                  <label><span>Final drive ratio <small>최종 감속비</small></span><input name="finalDrive" type="number" min="0" step="0.01" value="5"><em>-</em></label>
+                  <label><span>Drivetrain efficiency <small>구동 효율</small></span><input name="efficiency" type="number" min="0" max="100" step="1" value="90"><em>%</em></label>
+                  <label><span>Tire radius <small>타이어 반지름</small></span><input name="tireRadius" type="number" min="0" step="1" value="250"><em>mm</em></label>
+                  <label><span>Vehicle mass <small>차량 질량</small></span><input name="vehicleMass" type="number" min="0" step="1" value="250"><em>kg with driver</em></label>
+                  <label><span>Traction limit <small>노면 마찰계수</small></span><input name="tractionMu" type="number" min="0" step="0.05" value="0.85"><em>μ</em></label>
+                </div>
+              </form>
+
+              <div class="result-card capture-card">
+                <div class="section-heading">
+                  <h3>Result</h3>
+                  <span>휠 토크 / 추정 가속</span>
+                </div>
+                <div class="capture-hero">
+                  <div>
+                    <span>Wheel force <small>구동력</small></span>
+                    <strong id="tractive-force">-</strong>
+                    <em>타이어 접지점 기준</em>
+                  </div>
+                  <div>
+                    <span>Acceleration <small>가속도</small></span>
+                    <strong id="tractive-accel">-</strong>
+                    <em>질량 기준 1차 추정</em>
+                  </div>
+                </div>
+                <div class="metric-grid three">
+                  <article><span>Wheel torque <small>휠 토크</small></span><strong id="tractive-wheel-torque">-</strong></article>
+                  <article><span>Traction cap <small>접지 한계</small></span><strong id="tractive-cap">-</strong></article>
+                  <article><span>Limited force <small>제한 후 구동력</small></span><strong id="tractive-limited-force">-</strong></article>
+                  <article><span>Acceleration g <small>g 환산</small></span><strong id="tractive-accel-g">-</strong></article>
+                  <article><span>0-30 km/h estimate <small>단순 추정</small></span><strong id="tractive-zero-thirty">-</strong></article>
+                  <article><span>Limiting factor <small>제한 요인</small></span><strong id="tractive-limit-status">-</strong></article>
+                </div>
+                <p class="formula">wheel force = motor torque × final drive × efficiency / tire radius. 공기저항, 토크 커브, 슬립 제어는 제외한 1차 추정입니다.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="calc-panel" data-calc-panel="battery" aria-label="Battery runtime calculator">
+            <div class="calculator-layout">
+              <form class="input-card" data-form="battery">
+                <div class="section-heading">
+                  <h3>Input</h3>
+                  <span>에너지 / 주행 시간</span>
+                </div>
+                <div class="input-grid">
+                  <label><span>Pack voltage <small>팩 전압</small></span><input name="packVoltage" type="number" min="0" step="1" value="72"><em>V nominal</em></label>
+                  <label><span>Capacity <small>용량</small></span><input name="capacityAh" type="number" min="0" step="0.1" value="45"><em>Ah</em></label>
+                  <label><span>Usable SOC <small>사용 가능 SOC</small></span><input name="usableSoc" type="number" min="0" max="100" step="1" value="80"><em>%</em></label>
+                  <label><span>Average power <small>평균 출력</small></span><input name="averagePower" type="number" min="0" step="0.1" value="8"><em>kW</em></label>
+                  <label><span>Average current <small>평균 전류</small></span><input name="averageCurrent" type="number" min="0" step="1" value="110"><em>A, optional cross-check</em></label>
+                  <label><span>Target event time <small>목표 주행 시간</small></span><input name="targetMinutes" type="number" min="0" step="1" value="30"><em>min</em></label>
+                </div>
+              </form>
+
+              <div class="result-card capture-card">
+                <div class="section-heading">
+                  <h3>Result</h3>
+                  <span>사용 가능 에너지 / 런타임</span>
+                </div>
+                <div class="capture-hero">
+                  <div>
+                    <span>Usable energy <small>사용 가능 에너지</small></span>
+                    <strong id="battery-energy">-</strong>
+                    <em>전압 × 용량 × 사용 SOC</em>
+                  </div>
+                  <div>
+                    <span>Runtime <small>예상 주행 시간</small></span>
+                    <strong id="battery-runtime">-</strong>
+                    <em>평균 출력 기준</em>
+                  </div>
+                </div>
+                <div class="metric-grid three">
+                  <article><span>Total energy <small>총 에너지</small></span><strong id="battery-total-energy">-</strong></article>
+                  <article><span>Power from current <small>전류 기준 출력</small></span><strong id="battery-current-power">-</strong></article>
+                  <article><span>Energy for target <small>목표 시간 필요 에너지</small></span><strong id="battery-target-energy">-</strong></article>
+                  <article><span>Power budget <small>목표 시간 허용 출력</small></span><strong id="battery-power-budget">-</strong></article>
+                  <article><span>Runtime margin <small>시간 여유</small></span><strong id="battery-runtime-margin">-</strong></article>
+                  <article><span>Status <small>판정</small></span><strong id="battery-status">-</strong></article>
+                </div>
+                <p class="formula">usable energy = voltage × Ah × usable SOC. 실제 런타임은 온도, 전압강하, 드라이버 패턴, 회생제동에 따라 달라집니다.</p>
+              </div>
+            </div>
           </section>
         </section>
 

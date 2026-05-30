@@ -58,6 +58,11 @@ Current calculators:
   rack travel, and ideal inner / outer wheel angles
 - EV chain drive layout for 420 / 428 / 520 chain, including recommended link
   count, center distance, final drive ratio, and small sprocket wrap angle
+- Speed / RPM from motor speed, final drive ratio, and tire diameter
+- Tractive force and simple acceleration estimate from motor torque, gearing,
+  tire radius, vehicle mass, and traction limit
+- Battery runtime and usable energy estimate from pack voltage, capacity,
+  usable SOC, average power, and event time
 
 The Data Analysis view parses uploaded log, CSV, JSON, and numeric text files in
 the browser. Files stay local to the current browser session.

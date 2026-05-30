@@ -14,6 +14,9 @@ const calcTitles = {
   geometry: "Geometry Setup",
   steering: "Steering Setup",
   chain: "Chain Drive",
+  speed: "Speed / RPM",
+  tractive: "Tractive Force",
+  battery: "Battery Runtime",
 };
 
 const chainSizes = {
@@ -991,6 +994,79 @@ function updateChain() {
   drawChainDiagram(result);
 }
 
+function updateSpeed() {
+  const form = document.querySelector('[data-form="speed"]');
+  const motorRpm = numberValue(form, "motorRpm");
+  const finalDrive = numberValue(form, "finalDrive");
+  const tireDiameterM = numberValue(form, "tireDiameter") / 1000;
+  const targetSpeedKph = numberValue(form, "targetSpeed");
+  const circumference = Math.PI * tireDiameterM;
+  const wheelRpm = finalDrive > 0 ? motorRpm / finalDrive : NaN;
+  const speedKph = Number.isFinite(wheelRpm) ? wheelRpm * circumference * 60 / 1000 : NaN;
+  const targetSpeedMps = targetSpeedKph / 3.6;
+  const targetWheelRpm = circumference > 0 ? (targetSpeedMps / circumference) * 60 : NaN;
+  const requiredRatio = targetWheelRpm > 0 ? motorRpm / targetWheelRpm : NaN;
+
+  setText("#speed-vehicle", format(speedKph, 1, " km/h"));
+  setText("#speed-required-ratio", format(requiredRatio, 2, ":1"));
+  setText("#speed-wheel-rpm", format(wheelRpm, 0, " rpm"));
+  setText("#speed-circumference", format(circumference * 1000, 0, " mm"));
+  setText("#speed-target-wheel-rpm", format(targetWheelRpm, 0, " rpm"));
+}
+
+function updateTractive() {
+  const form = document.querySelector('[data-form="tractive"]');
+  const motorTorque = numberValue(form, "motorTorque");
+  const finalDrive = numberValue(form, "finalDrive");
+  const efficiency = Math.min(Math.max(numberValue(form, "efficiency"), 0), 100) / 100;
+  const tireRadiusM = numberValue(form, "tireRadius") / 1000;
+  const vehicleMass = numberValue(form, "vehicleMass");
+  const tractionMu = numberValue(form, "tractionMu");
+  const wheelTorque = motorTorque * finalDrive * efficiency;
+  const driveForce = tireRadiusM > 0 ? wheelTorque / tireRadiusM : NaN;
+  const tractionCap = vehicleMass * 9.80665 * tractionMu;
+  const limitedForce = Math.min(driveForce, tractionCap);
+  const accel = vehicleMass > 0 ? limitedForce / vehicleMass : NaN;
+  const zeroThirtyTime = accel > 0 ? (30 / 3.6) / accel : NaN;
+  const limitedByTraction = Number.isFinite(driveForce) && Number.isFinite(tractionCap) && driveForce > tractionCap;
+
+  setText("#tractive-force", format(driveForce, 0, " N"));
+  setText("#tractive-accel", format(accel, 2, " m/s²"));
+  setText("#tractive-wheel-torque", format(wheelTorque, 1, " Nm"));
+  setText("#tractive-cap", format(tractionCap, 0, " N"));
+  setText("#tractive-limited-force", format(limitedForce, 0, " N"));
+  setText("#tractive-accel-g", format(accel / 9.80665, 2, " g"));
+  setText("#tractive-zero-thirty", format(zeroThirtyTime, 2, " s"));
+  setText("#tractive-limit-status", limitedByTraction ? "Traction limited" : "Torque limited");
+}
+
+function updateBattery() {
+  const form = document.querySelector('[data-form="battery"]');
+  const packVoltage = numberValue(form, "packVoltage");
+  const capacityAh = numberValue(form, "capacityAh");
+  const usableSoc = Math.min(Math.max(numberValue(form, "usableSoc"), 0), 100) / 100;
+  const averagePowerKw = numberValue(form, "averagePower");
+  const averageCurrent = numberValue(form, "averageCurrent");
+  const targetMinutes = numberValue(form, "targetMinutes");
+  const totalEnergyKwh = (packVoltage * capacityAh) / 1000;
+  const usableEnergyKwh = totalEnergyKwh * usableSoc;
+  const runtimeHours = averagePowerKw > 0 ? usableEnergyKwh / averagePowerKw : NaN;
+  const currentPowerKw = (packVoltage * averageCurrent) / 1000;
+  const targetHours = targetMinutes / 60;
+  const targetEnergyKwh = averagePowerKw * targetHours;
+  const powerBudgetKw = targetHours > 0 ? usableEnergyKwh / targetHours : NaN;
+  const runtimeMarginMin = Number.isFinite(runtimeHours) ? runtimeHours * 60 - targetMinutes : NaN;
+
+  setText("#battery-energy", format(usableEnergyKwh, 2, " kWh"));
+  setText("#battery-runtime", format(runtimeHours * 60, 1, " min"));
+  setText("#battery-total-energy", format(totalEnergyKwh, 2, " kWh"));
+  setText("#battery-current-power", format(currentPowerKw, 2, " kW"));
+  setText("#battery-target-energy", format(targetEnergyKwh, 2, " kWh"));
+  setText("#battery-power-budget", format(powerBudgetKw, 2, " kW"));
+  setText("#battery-runtime-margin", format(runtimeMarginMin, 1, " min"));
+  setText("#battery-status", runtimeMarginMin >= 0 ? "Enough energy" : "Energy short");
+}
+
 function bytesToUint(bytes, start, byteCount) {
   let value = 0;
   for (let offset = 0; offset < byteCount; offset += 1) {
@@ -1714,6 +1790,9 @@ function updateAll() {
   updateGeometry();
   updateSteering();
   updateChain();
+  updateSpeed();
+  updateTractive();
+  updateBattery();
 }
 
 document.querySelectorAll(".nav-button").forEach((button) => {

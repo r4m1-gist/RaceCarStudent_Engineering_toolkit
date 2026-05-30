@@ -54,6 +54,9 @@ LICENSE
 - Geometry Setup: CG, yaw rate
 - Steering Setup: steering ratio, Ackermann
 - Chain Drive
+- Speed / RPM
+- Tractive Force
+- Battery Runtime
 
 `Data Analysis`는 업로드한 로그, CSV, JSON, 숫자형 텍스트 파일을 브라우저
 안에서 바로 파싱합니다. 파일은 서버로 전송하지 않고 현재 브라우저 세션에서만
